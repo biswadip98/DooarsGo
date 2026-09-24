@@ -15,7 +15,7 @@ export function AuthProvider({ children }) {
     }
     const { data } = await supabase
       .from('profiles')
-      .select('id, full_name, phone, avatar_url, is_driver, is_admin, driver_status, rating_avg')
+      .select('id, full_name, phone, gender, avatar_url, is_driver, is_admin, driver_status, rating_avg')
       .eq('id', userId)
       .maybeSingle()
     setProfile(data ?? null)
@@ -40,32 +40,31 @@ export function AuthProvider({ children }) {
     profile,
     loading,
     user: session?.user ?? null,
-
     async signIn(email, password) {
       return supabase.auth.signInWithPassword({ email, password })
     },
-
-    async signUp({ email, password, fullName, phone }) {
+    async signUp({ email, password, fullName, phone, gender }) {
       const res = await supabase.auth.signUp({
         email,
         password,
-        options: { data: { full_name: fullName, phone } },
+        options: { data: { full_name: fullName, phone, gender: gender || null } },
       })
-      // Make sure name & phone land on the profile row even if the
+      // Make sure name, phone & gender land on the profile row even if the
       // database trigger doesn't copy them from sign-up metadata.
       const uid = res.data?.user?.id
       if (uid && res.data?.session) {
-        await supabase.from('profiles').update({ full_name: fullName, phone }).eq('id', uid)
+        await supabase
+          .from('profiles')
+          .update({ full_name: fullName, phone, gender: gender || null })
+          .eq('id', uid)
         await loadProfile(uid)
       }
       return res
     },
-
     async signOut() {
       await supabase.auth.signOut()
       setProfile(null)
     },
-
     refreshProfile: () => loadProfile(session?.user?.id),
   }
 

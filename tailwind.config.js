@@ -9,7 +9,7 @@ export default {
         leafbright: '#57c437',
         sun: '#f4b400',
         mist: '#f2f7f0',
-        ink: '#182a1c',
+        ink: '#182a1c', 
       },
       fontFamily: {
         display: ['Poppins', 'system-ui', 'sans-serif'],
