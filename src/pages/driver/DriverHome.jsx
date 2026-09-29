@@ -13,6 +13,7 @@ export default function DriverHome() {
   const [rides, setRides] = useState([])
   const [msg, setMsg] = useState('')
   const [earn, setEarn] = useState(null)
+  const [activeRide, setActiveRide] = useState(null)
   const posRef = useRef(null)
   const timerRef = useRef(null)
   const prevIds = useRef(null)
@@ -23,6 +24,9 @@ export default function DriverHome() {
     if (status !== 'approved') return
     supabase.rpc('driver_earnings').then(({ data }) => data && setEarn(data))
   }, [status])
+
+  useEffect(() => { checkActiveRide() // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // Stay online across rides: if the driver was online, resume automatically.
   useEffect(() => {
@@ -62,6 +66,19 @@ export default function DriverHome() {
     }
     prevIds.current = ids
     setRides(list)
+    checkActiveRide()
+  }
+
+  async function checkActiveRide() {
+    const { data } = await supabase
+      .from('rides')
+      .select('id,status')
+      .eq('driver_id', user.id)
+      .in('status', ['ACCEPTED', 'ARRIVED', 'IN_PROGRESS'])
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+    setActiveRide(data || null)
   }
 
   function tick() {
@@ -93,6 +110,7 @@ export default function DriverHome() {
   }
 
   async function accept(rideId) {
+    if (activeRide) { setMsg('Finish your current ride before accepting a new one.'); return }
     const p = posRef.current
     const { data, error } = await supabase.rpc('accept_ride', {
       p_ride_id: rideId, p_driver_id: user.id, p_driver_lng: p?.lng ?? null, p_driver_lat: p?.lat ?? null,
@@ -192,6 +210,14 @@ export default function DriverHome() {
 
       {msg && <div className="dg-up mt-3 text-xs font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">{msg}</div>}
 
+      {activeRide && (
+        <button onClick={() => navigate('/driver/ride/' + activeRide.id)}
+          className="dg-up mt-3 w-full rounded-2xl border-2 border-leafbright bg-leafbright/10 p-4 text-left hover:bg-leafbright/20">
+          <div className="text-xs font-bold uppercase tracking-wide text-forest">🚗 Active ride in progress</div>
+          <div className="mt-0.5 text-sm text-ink/70">Tap to continue. You can accept a new ride only after finishing this one.</div>
+        </button>
+      )}
+
       {!online ? (
         <Card>
           <div className="text-4xl mb-2">🟢</div>
@@ -227,9 +253,9 @@ export default function DriverHome() {
                       <b className="text-forest text-xl">₹{r.fare_estimate}</b>
                     </div>
                   </div>
-                  <button onClick={() => accept(r.ride_id)}
-                    className="w-full mt-2 rounded-lg bg-leafbright text-white font-semibold py-2.5 text-sm hover:bg-leaf transition-transform active:scale-[.98]">
-                    Accept ride
+                  <button onClick={() => accept(r.ride_id)} disabled={!!activeRide}
+                    className={`w-full mt-2 rounded-lg py-2.5 text-sm font-semibold transition-transform active:scale-[.98] ${activeRide ? 'bg-mist text-ink/40 cursor-not-allowed' : 'bg-leafbright text-white hover:bg-leaf'}`}>
+                    {activeRide ? 'Finish current ride first' : 'Accept ride'}
                   </button>
                 </div>
               ))}
