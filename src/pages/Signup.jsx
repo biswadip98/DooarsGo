@@ -35,6 +35,7 @@ export default function Signup() {
   const [error, setError] = useState('')
   const [info, setInfo] = useState('')
   const [busy, setBusy] = useState(false)
+  const [agreedTerms, setAgreedTerms] = useState(false)
   const set = (k) => (e) => setForm({ ...form, [k]: e.target.value })
 
   const afterSignup = isDriver ? '/driver/register' : '/home'
@@ -44,6 +45,7 @@ export default function Signup() {
     setError(''); setInfo('')
     if (!form.fullName || !form.phone || !form.email || !form.password) { setError('Please fill in every required field.'); return }
     if (form.password.length < 8) { setError('Password must be at least 8 characters.'); return }
+    if (!agreedTerms) { setError("Please accept the Terms & Privacy Policy to continue."); return }
     setBusy(true)
     const { data, error } = await signUp({
       email: form.email.trim(), password: form.password, fullName: form.fullName.trim(), phone: form.phone.trim(), gender: form.gender || null,
@@ -117,7 +119,12 @@ export default function Signup() {
                 <input value={form.password} onChange={set('password')} onKeyDown={(e) => e.key === 'Enter' && handleSignup()} type="password" placeholder="At least 8 characters"
                   className="w-full mb-5 rounded-xl border border-mist bg-mist/40 px-3 py-3 text-sm outline-none focus:border-leafbright" />
 
-                <button onClick={handleSignup} disabled={busy}
+                <label className="mb-4 flex items-start gap-2 text-xs text-ink/60 cursor-pointer">
+                  <input type="checkbox" checked={agreedTerms} onChange={(e) => setAgreedTerms(e.target.checked)} className="mt-0.5 h-4 w-4 accent-[#15803d]" />
+                  <span>I agree to DooarsGo's <Link to="/terms" className="font-semibold text-forest underline">Terms</Link> and <Link to="/privacy" className="font-semibold text-forest underline">Privacy Policy</Link>.</span>
+                </label>
+
+                <button onClick={handleSignup} disabled={busy || !agreedTerms}
                   className="w-full rounded-xl bg-forest text-white font-semibold py-3 text-sm transition-transform hover:bg-leaf active:scale-[.98] disabled:opacity-60">
                   {busy ? 'Creating...' : isDriver ? 'Create driver account' : 'Create account'}
                 </button>

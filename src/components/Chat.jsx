@@ -10,25 +10,26 @@ export default function Chat({ rideId, role }) {
   const endRef = useRef(null)
 
   useEffect(() => {
-    let channel
-    async function init() {
-      const { data } = await supabase
-        .from('ride_messages')
-        .select('*')
-        .eq('ride_id', rideId)
-        .order('created_at')
-      setMessages(data || [])
-      channel = supabase
-        .channel('msg-' + rideId)
-        .on(
-          'postgres_changes',
-          { event: 'INSERT', schema: 'public', table: 'ride_messages', filter: `ride_id=eq.${rideId}` },
-          (p) => setMessages((m) => [...m, p.new])
-        )
-        .subscribe()
-    }
-    init()
-    return () => channel && supabase.removeChannel(channel)
+    let mounted = true
+    // initial load
+    supabase
+      .from('ride_messages')
+      .select('*')
+      .eq('ride_id', rideId)
+      .order('created_at')
+      .then(({ data }) => { if (mounted) setMessages(data || []) })
+
+    // Create the channel synchronously so cleanup always removes it (no duplicate subscriptions).
+    const channel = supabase.channel(`msg-${rideId}`)
+    channel
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'ride_messages', filter: `ride_id=eq.${rideId}` },
+        (p) => setMessages((m) => [...m, p.new])
+      )
+      .subscribe()
+
+    return () => { mounted = false; supabase.removeChannel(channel) }
   }, [rideId])
 
   useEffect(() => {

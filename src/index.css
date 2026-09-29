@@ -9,4 +9,13 @@ body {
   background:
     radial-gradient(1200px 500px at 50% -160px, #e7f3e4 0%, transparent 70%),
     #f2f7f0;
+
+    /* ============================================================
+   DooarsGo — contrast pass (#16). Makes faint helper text
+   readable in bright outdoor sunlight, app-wide, in one place.
+   HOW TO USE: paste these lines at the END of src/index.css
+   (after the @tailwind directives). Nothing else needs editing.
+   ============================================================ */
+.text-ink\/40 { color: #64748b !important; }  /* was ~40% — now readable slate */
+.text-ink\/50 { color: #475569 !important; }  /* darker slate for secondary text */
 }

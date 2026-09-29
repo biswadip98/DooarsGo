@@ -139,6 +139,13 @@ export default function BookRide() {
   async function requestRide() {
     setError('')
     setBusy('requesting')
+    // Cancellation cooldown: block if the rider has cancelled too many times recently.
+    const { data: gate } = await supabase.rpc('check_booking_allowed')
+    if (gate && gate.allowed === false) {
+      setBusy('')
+      setError(gate.message || 'Booking is paused for a short while due to repeated cancellations.')
+      return
+    }
     const { data, error } = await supabase.rpc('request_ride', {
       p_vehicle_type: vehicle,
       p_pickup_lng: pickup.lng,
@@ -252,9 +259,9 @@ export default function BookRide() {
           <div className="flex items-center justify-between bg-white rounded-xl border border-mist p-3">
             <span className="text-sm text-ink/70">Passengers</span>
             <div className="flex items-center gap-3">
-              <button onClick={() => { setPassengers(Math.max(1, passengers - 1)); resetQuote() }} className="w-8 h-8 rounded-lg bg-mist font-bold">–</button>
+              <button onClick={() => { setPassengers(Math.max(1, passengers - 1)); resetQuote() }} className="w-11 h-11 rounded-lg bg-mist text-lg font-bold">–</button>
               <b className="w-4 text-center">{passengers}</b>
-              <button onClick={() => { setPassengers(Math.min(4, passengers + 1)); resetQuote() }} className="w-8 h-8 rounded-lg bg-leafbright text-white font-bold">+</button>
+              <button onClick={() => { setPassengers(Math.min(4, passengers + 1)); resetQuote() }} className="w-11 h-11 rounded-lg bg-leafbright text-white text-lg font-bold">+</button>
             </div>
           </div>
         )}

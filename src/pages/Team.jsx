@@ -5,12 +5,15 @@ import logoMark from '../assets/dooarsgo-logo-mark.png'
 
 // Demo team — logo used as the photo for now; swap names/roles/photos later.
 const TEAM = [
-  { name: 'Biswadip Bhattacharjee', role: 'Founder & Developer', bio: 'Building reliable local transit for the Dooars.' },
-  { name: 'Team Member', role: 'Operations Lead', bio: 'Keeps rides, drivers and support running smoothly.' },
-  { name: 'Team Member', role: 'Driver Relations', bio: 'Onboards and supports our driver partners.' },
-  { name: 'Team Member', role: 'Customer Support', bio: 'Here to help riders before, during and after a trip.' },
-  { name: 'Team Member', role: 'Technology', bio: 'Maintains the app, maps and booking platform.' },
-  { name: 'Team Member', role: 'Community & Growth', bio: 'Grows DooarsGo across villages and tea-garden areas.' },
+  { name: 'DooarsGo', role: 'Founder & Developer', bio: 'Building entire reliable local transit for the Dooars.' },
+  { name: 'Rahul Bhattacharjee', role: 'Operations Lead', bio: 'Keeps rides, drivers and support running smoothly.' },
+  { name: 'Sanjay Bhowmick', role: 'Driver Relations', bio: 'Onboards and supports our driver partners.' },
+  { name: 'Rahul Roy', role: 'Customer Support', bio: 'Here to help riders before, during and after a trip.' },
+  { name: 'Biswadip bhattacharjee', role: 'Technology', bio: 'Maintains the app, maps and entire booking platform.' },
+  { name: 'Debarati Bhattacharjee', role: 'Community & Growth', bio: 'Grows DooarsGo across villages and tea-garden areas.' },
+  { name: 'Team Member', role: 'Team Member', bio: 'Here to help riders before, during and after a trip.' },
+  { name: 'Team Member', role: 'Team Member', bio: 'Maintains the app, maps and entire booking platform.' },
+  { name: 'Team Member', role: 'Team Member', bio: 'Grows DooarsGo across villages and tea-garden areas.' },
 ]
 
 export default function Team() {

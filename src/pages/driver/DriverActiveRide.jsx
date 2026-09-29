@@ -24,22 +24,24 @@ export default function DriverActiveRide() {
   const [method, setMethod] = useState('cash')
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
+  const [people, setPeople] = useState(null)
   const timerRef = useRef(null)
 
   useEffect(() => {
-    let channel
-    async function init() {
-      const { data } = await supabase.from('rides').select('*').eq('id', id).maybeSingle()
-      setRide(data)
-      setLoading(false)
-      channel = supabase
-        .channel('driveride-' + id)
-        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'rides', filter: `id=eq.${id}` },
-          (p) => setRide(p.new))
-        .subscribe()
-    }
-    init()
-    return () => channel && supabase.removeChannel(channel)
+    let mounted = true
+    supabase.from('rides').select('*').eq('id', id).maybeSingle().then(({ data }) => {
+      if (mounted) { setRide(data); setLoading(false) }
+    })
+    const channel = supabase.channel(`driveride-${id}`)
+    channel
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'rides', filter: `id=eq.${id}` },
+        (p) => setRide(p.new))
+      .subscribe()
+    return () => { mounted = false; supabase.removeChannel(channel) }
+  }, [id])
+
+  useEffect(() => {
+    supabase.rpc('ride_people', { p_ride_id: id }).then(({ data }) => { if (data?.ok) setPeople(data) })
   }, [id])
 
   useEffect(() => {
@@ -81,11 +83,19 @@ export default function DriverActiveRide() {
     setErr(''); setBusy(true)
     if (!navigator.geolocation) { setBusy(false); setErr('Location is needed to finish.'); return }
     navigator.geolocation.getCurrentPosition(async (pos) => {
-      const { data, error } = await supabase.rpc('finish_ride', { p_ride_id: id, p_driver_lng: pos.coords.longitude, p_driver_lat: pos.coords.latitude, p_payment_method: method })
+      const { data, error } = await supabase.rpc('finish_ride', { p_ride_id: id, p_driver_lng: pos.coords.longitude, p_driver_lat: pos.coords.latitude, p_payment_method: method.toUpperCase() })
       setBusy(false)
       if (error) { setErr(error.message); return }
       if (!data?.ok) setErr(data?.error === 'too_far' ? 'You must be within 200 m of the drop to finish.' : 'Could not finish the ride.')
     }, () => { setBusy(false); setErr('Could not read your location.') })
+  }
+
+  async function cancelRide() {
+    if (!window.confirm('Cancel this ride? The rider will be notified and it will be offered to other drivers.')) return
+    setErr(''); setBusy(true)
+    await supabase.rpc('cancel_ride', { p_ride_id: id, p_cancelled_by: 'driver', p_reason: 'driver_unavailable', p_actor_id: user.id })
+    setBusy(false)
+    navigate('/driver')
   }
 
   if (loading) return <div className="min-h-screen flex items-center justify-center text-ink/50 text-sm">Loading…</div>
@@ -157,6 +167,25 @@ export default function DriverActiveRide() {
           </div>
         </div>
 
+        {['ACCEPTED', 'ARRIVED', 'IN_PROGRESS'].includes(ride.status) && (
+          <div className="dg-up grid grid-cols-2 gap-2">
+            <a
+              href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(ride.status === 'IN_PROGRESS' ? ride.drop_address : ride.pickup_address)}`}
+              target="_blank" rel="noreferrer"
+              className="flex items-center justify-center gap-1 rounded-xl bg-forest py-3 text-sm font-semibold text-white hover:bg-leaf"
+            >
+              🧭 Navigate
+            </a>
+            {people?.rider_phone ? (
+              <a href={`tel:${people.rider_phone}`} className="flex items-center justify-center gap-1 rounded-xl border border-forest py-3 text-sm font-semibold text-forest hover:bg-mist">
+                📞 Call rider
+              </a>
+            ) : (
+              <span className="flex items-center justify-center rounded-xl border border-mist py-3 text-sm text-ink/40">Call rider</span>
+            )}
+          </div>
+        )}
+
         {err && <div className="dg-up text-xs font-medium text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{err}</div>}
 
         {ride.status === 'ACCEPTED' && (
@@ -201,11 +230,18 @@ export default function DriverActiveRide() {
           <div className="dg-up bg-white rounded-2xl border border-black/5 p-6 text-center shadow-[0_8px_24px_rgba(15,90,46,0.06)]">
             <div className="text-5xl mb-2">✅</div>
             <b className="text-forest text-lg">Ride completed</b>
-            <p className="text-sm text-ink/60 mt-1">Your earning has been added to your wallet 💚</p>
+            <p className="text-sm text-ink/60 mt-1">Payment is collected directly from the rider (cash / UPI). You keep 100% — no commission. 💚</p>
           </div>
         )}
 
         {!done && <Chat rideId={id} role="driver" />}
+
+        {['ACCEPTED', 'ARRIVED'].includes(ride.status) && (
+          <button onClick={cancelRide} disabled={busy}
+            className="w-full rounded-xl bg-white text-red-600 border border-red-200 font-semibold py-2.5 text-sm hover:bg-red-50 disabled:opacity-60">
+            Can't take this ride? Cancel
+          </button>
+        )}
 
         <button onClick={() => navigate('/driver')}
           className="w-full rounded-xl bg-white border border-black/5 text-forest font-semibold py-3 text-sm hover:bg-mist">

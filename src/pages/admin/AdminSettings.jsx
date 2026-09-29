@@ -63,6 +63,14 @@ export default function AdminSettings() {
     error ? fail(error) : flash('Toto multipliers saved')
   }
 
+  async function toggleBookings() {
+    if (!platform) return
+    const next = !platform.bookings_paused
+    const { error } = await supabase.from('platform_settings').update({ bookings_paused: next }).eq('id', 1)
+    if (error) fail(error)
+    else { setPlatform({ ...platform, bookings_paused: next }); flash(next ? 'New bookings PAUSED' : 'New bookings resumed') }
+  }
+
   async function savePlatform() {
     const { error } = await supabase.from('platform_settings').update({
       min_withdrawal: platform.min_withdrawal,
@@ -121,6 +129,19 @@ export default function AdminSettings() {
 
       {saved && <div className="mb-3 text-xs font-semibold text-forest bg-leafbright/15 border border-leafbright/30 rounded-lg px-3 py-2">✓ {saved}</div>}
       {error && <div className="mb-3 text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{error}</div>}
+
+      {platform && (
+        <div className={`mb-4 flex items-center justify-between rounded-2xl border p-4 ${platform.bookings_paused ? 'border-red-300 bg-red-50' : 'border-leafbright/40 bg-leafbright/10'}`}>
+          <div>
+            <h3 className="font-bold text-forest">New bookings — {platform.bookings_paused ? 'PAUSED' : 'Live'}</h3>
+            <p className="text-xs text-ink/60">{platform.bookings_paused ? 'Riders cannot request rides right now.' : 'Riders can request rides normally.'} Use this during bad weather, festivals, or when no drivers are online.</p>
+          </div>
+          <button onClick={toggleBookings} aria-label="Toggle bookings"
+            className={`relative h-9 w-16 shrink-0 rounded-full transition-colors ${platform.bookings_paused ? 'bg-red-500' : 'bg-leafbright'}`}>
+            <span className={`absolute top-1 h-7 w-7 rounded-full bg-white shadow transition-all ${platform.bookings_paused ? 'left-1' : 'right-1'}`} />
+          </button>
+        </div>
+      )}
 
       {/* Fares per vehicle */}
       <Section title="Fares per vehicle" subtitle="Base covers 0–5 km. Extra ₹/km applies beyond that." onSave={() => rules.forEach(saveRule)}>

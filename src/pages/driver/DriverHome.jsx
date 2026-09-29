@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import { supabase } from '../../lib/supabaseClient'
 import { useAuth } from '../../lib/AuthContext'
 import Brand from '../../components/Brand'
+import { Sounds, buzz } from '../../lib/sound'
 
 export default function DriverHome() {
   const { user, profile, signOut } = useAuth()
@@ -11,10 +12,25 @@ export default function DriverHome() {
   const [online, setOnline] = useState(false)
   const [rides, setRides] = useState([])
   const [msg, setMsg] = useState('')
+  const [earn, setEarn] = useState(null)
   const posRef = useRef(null)
   const timerRef = useRef(null)
+  const prevIds = useRef(null)
 
   const status = profile?.driver_status || 'none'
+
+  useEffect(() => {
+    if (status !== 'approved') return
+    supabase.rpc('driver_earnings').then(({ data }) => data && setEarn(data))
+  }, [status])
+
+  // Stay online across rides: if the driver was online, resume automatically.
+  useEffect(() => {
+    if (status === 'approved' && verif?.vehicle_type && !online) {
+      try { if (localStorage.getItem('dg_driver_online') === '1') goOnline() } catch (_) {}
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [status, verif])
 
   useEffect(() => {
     async function load() {
@@ -37,7 +53,15 @@ export default function DriverHome() {
     const { data } = await supabase.rpc('open_rides_for_driver', {
       p_driver_lng: p.lng, p_driver_lat: p.lat, p_vehicle_type: verif.vehicle_type, p_max_radius_m: null,
     })
-    setRides(data || [])
+    const list = data || []
+    const ids = new Set(list.map((r) => r.ride_id))
+    if (prevIds.current !== null) {
+      let hasNew = false
+      for (const id of ids) if (!prevIds.current.has(id)) { hasNew = true; break }
+      if (hasNew) { Sounds.request(); buzz([120, 80, 120]) }  // new ride request cue
+    }
+    prevIds.current = ids
+    setRides(list)
   }
 
   function tick() {
@@ -54,6 +78,7 @@ export default function DriverHome() {
   async function goOnline() {
     if (!navigator.geolocation) { setMsg('Location is needed to go online.'); return }
     setOnline(true)
+    try { localStorage.setItem('dg_driver_online', '1') } catch (_) {}
     tick()
     timerRef.current = setInterval(tick, 7000)
   }
@@ -62,6 +87,7 @@ export default function DriverHome() {
     if (timerRef.current) clearInterval(timerRef.current)
     timerRef.current = null
     await supabase.rpc('set_driver_offline')
+    try { localStorage.removeItem('dg_driver_online') } catch (_) {}
     setOnline(false)
     setRides([])
   }
@@ -76,6 +102,7 @@ export default function DriverHome() {
       refreshRides()
       return
     }
+    Sounds.matched(); buzz([90])
     navigate('/driver/ride/' + rideId)
   }
 
@@ -143,6 +170,25 @@ export default function DriverHome() {
         </div>
         <div className="mt-3 rounded-xl bg-white/10 px-3 py-2 text-xs">💚 You keep <b>100%</b> of every fare — no commission.</div>
       </div>
+
+      {earn && (
+        <div className="dg-up mt-3 grid grid-cols-2 gap-3">
+          <div className="rounded-2xl border border-mist bg-white p-3 text-center">
+            <div className="text-[10px] uppercase tracking-wide text-ink/40">Earned today</div>
+            <div className="text-xl font-extrabold text-forest">₹{earn.today}</div>
+            <div className="text-[10px] text-ink/40">{earn.rides_today} ride{Number(earn.rides_today) === 1 ? '' : 's'}</div>
+          </div>
+          <div className="rounded-2xl border border-mist bg-white p-3 text-center">
+            <div className="text-[10px] uppercase tracking-wide text-ink/40">All time</div>
+            <div className="text-xl font-extrabold text-forest">₹{earn.total}</div>
+            <div className="text-[10px] text-ink/40">{earn.rides_total} ride{Number(earn.rides_total) === 1 ? '' : 's'}</div>
+          </div>
+        </div>
+      )}
+
+      <button onClick={() => navigate('/rides')} className="dg-up mt-3 w-full rounded-xl border border-mist bg-white px-4 py-3 text-left text-sm font-semibold text-forest hover:bg-mist/40">
+        📜 My rides & earnings history →
+      </button>
 
       {msg && <div className="dg-up mt-3 text-xs font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">{msg}</div>}
 

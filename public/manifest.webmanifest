@@ -1,0 +1,15 @@
+{
+  "name": "DooarsGo — Your Local Ride, Anytime",
+  "short_name": "DooarsGo",
+  "description": "Book a Toto, Bike or Car in seconds across the Dooars. Fair fares, no commission.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ecfdf5",
+  "theme_color": "#15803d",
+  "icons": [
+    { "src": "/dooarsgo-logo-mark.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/dooarsgo-logo-mark.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}

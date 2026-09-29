@@ -1,78 +1,92 @@
-import AppHeader from '../components/AppHeader'
+import { useNavigate, Link } from 'react-router-dom'
+import PageBackground from '../components/PageBackground'
+import Brand from '../components/Brand'
+
+const UPDATED = 'September 2026'
+
+function Section({ n, title, children }) {
+  return (
+    <section className="mt-6">
+      <h2 className="font-display text-lg font-bold text-forest">{n}. {title}</h2>
+      <div className="mt-2 space-y-2 text-sm leading-relaxed text-ink/80">{children}</div>
+    </section>
+  )
+}
 
 export default function Terms() {
+  const navigate = useNavigate()
   return (
-    <div className="min-h-screen bg-white [font-family:'Inter',system-ui,sans-serif]">
-      <AppHeader />
-      <div className="mx-auto max-w-2xl px-4 py-12 sm:px-6">
-        <h1 className="text-3xl font-extrabold text-[#14532d]">Terms & Conditions</h1>
-        <p className="mt-2 text-sm text-slate-500">Last updated: {new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+    <PageBackground>
+      <header className="px-5 py-4 border-b border-black/5 bg-white/70 backdrop-blur flex items-center justify-between">
+        <button onClick={() => navigate(-1)} className="inline-flex items-center gap-1 text-sm font-semibold text-forest hover:underline">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
+          Back
+        </button>
+        <Brand size={32} />
+        <span className="w-12" />
+      </header>
 
-        <div className="mt-8 space-y-6 text-sm leading-relaxed text-slate-700">
-          <p>
-            DooarsGo is an independent, community-focused project connecting local Toto, Bike, and Car
-            drivers with customers across Chepani, Kamakhyaguri, Barobisha, and nearby Dooars areas. It
-            is built and operated by one individual, not a registered company. By using DooarsGo, you
-            agree to the following.
-          </p>
+      <main className="flex-1 w-full max-w-2xl mx-auto p-5">
+        <div className="rounded-2xl border border-mist bg-white p-6 shadow-[0_8px_24px_rgba(15,90,46,0.06)]">
+          <h1 className="font-display text-2xl font-extrabold text-forest">Terms &amp; Conditions</h1>
+          <p className="mt-1 text-xs text-ink/50">Last updated: {UPDATED}</p>
 
-          <section>
-            <h2 className="text-lg font-bold text-slate-900">Using the service</h2>
-            <ul className="mt-2 list-disc space-y-1 pl-5">
-              <li>You must provide accurate account information, including a working phone number.</li>
-              <li>Drivers must provide genuine identity and vehicle documents for verification before accepting rides.</li>
-              <li>Fares are calculated and shown before a ride is confirmed, based on the current rates set in the app.</li>
-              <li>Rides are only available within the service area currently covered by DooarsGo.</li>
-            </ul>
-          </section>
+          <Section n="1" title="About DooarsGo">
+            <p>DooarsGo ("we", "our", "the platform") is a technology platform that helps riders in Chepani, Kamakhyaguri, Barobisha and nearby areas of the Dooars book local Toto, Bike and Car rides from independent driver-partners. By creating an account or using the app, you agree to these Terms.</p>
+          </Section>
 
-          <section>
-            <h2 className="text-lg font-bold text-slate-900">Cancellations</h2>
-            <p className="mt-2">
-              Cancellation terms (free cancellation windows, fees for late cancellation or no-shows) are
-              shown at the time of booking and may be adjusted as the platform grows.
-            </p>
-          </section>
+          <Section n="2" title="Eligibility">
+            <p>You must be at least 18 years old to create an account. By using DooarsGo you confirm that the information you provide is true and that you will use the service lawfully.</p>
+          </Section>
 
-          <section>
-            <h2 className="text-lg font-bold text-slate-900">Conduct</h2>
-            <p className="mt-2">
-              Customers and drivers are expected to treat each other respectfully. Abusive behaviour,
-              fraud, or unsafe driving can result in a suspended or removed account.
-            </p>
-          </section>
+          <Section n="3" title="Our role">
+            <p>DooarsGo is an intermediary that connects riders with independent driver-partners. We are not a transport operator and do not own or operate vehicles. The ride is a service provided by the driver-partner directly to the rider. We facilitate discovery, booking, fare estimates and communication.</p>
+          </Section>
 
-          <section>
-            <h2 className="text-lg font-bold text-slate-900">Limits of the service</h2>
-            <p className="mt-2">
-              DooarsGo connects riders and drivers — it does not own or operate the vehicles involved.
-              As an early-stage, individually-run platform, the service is provided on a best-effort
-              basis. Use it at your own judgment, particularly around ride safety and timing.
-            </p>
-          </section>
+          <Section n="4" title="Fares &amp; payment">
+            <p>The fare shown in the app is an estimate based on distance, vehicle type, passengers and time. The final amount may vary slightly with the actual route.</p>
+            <p><b>Payment is made directly by the rider to the driver</b> in cash or by UPI at the end of the ride. DooarsGo charges <b>no commission</b> and does not process payments. For Car rides, any toll-gate charges on the route are paid by the rider directly at the toll booth and are not part of the fare.</p>
+          </Section>
 
-          <section>
-            <h2 className="text-lg font-bold text-slate-900">Changes</h2>
-            <p className="mt-2">
-              These terms may be updated as DooarsGo grows and adds features. Continued use of the app
-              after a change means you accept the updated terms.
-            </p>
-          </section>
+          <Section n="5" title="Cancellations">
+            <p>You may cancel a ride before it starts. To be fair to drivers, repeated cancellations within a short period may temporarily pause your ability to book new rides.</p>
+          </Section>
 
-          <section>
-            <h2 className="text-lg font-bold text-slate-900">Contact</h2>
-            <p className="mt-2">
-              Questions about these terms: {' '}
-              <a href="mailto:dooarsgo@gmail.com" className="font-semibold text-[#15803d]">dooarsgo@gmail.com</a>.
-            </p>
-          </section>
+          <Section n="6" title="Rider responsibilities">
+            <p>Provide an accurate pickup and drop location, be ready at pickup, pay the agreed fare, behave respectfully with the driver, and do not carry illegal or hazardous items. You are responsible for your belongings during the ride.</p>
+          </Section>
 
-          <p className="text-xs text-slate-400">
-            This is a simple, plain-language agreement for an early-stage, individually-run community
-            project, not formal legal advice.
-          </p>
+          <Section n="7" title="Driver-partner responsibilities">
+            <p>Driver-partners must be verified through our KYC process, hold valid documents (and a valid driving licence for Bike and Car), drive safely and lawfully, and honour the safety commitment they accept during registration. Bike drivers must carry a helmet for the passenger.</p>
+          </Section>
+
+          <Section n="8" title="Safety">
+            <p>Every ride uses a pickup code that the rider shares with the driver to start the trip. Driver-partners are identity-verified. Please still use normal caution and share your trip with someone you trust when needed.</p>
+          </Section>
+
+          <Section n="9" title="Prohibited use">
+            <p>Do not misuse the platform, create fake accounts, harass others, attempt to defraud drivers or riders, or use the service for anything unlawful. We may suspend or remove accounts that break these Terms.</p>
+          </Section>
+
+          <Section n="10" title="Limitation of liability">
+            <p>DooarsGo provides a booking platform on an "as is" basis. As driver-partners are independent, we are not liable for their acts, delays, the condition of vehicles, or events during a ride, to the maximum extent permitted by law. Nothing here limits any liability that cannot be limited under applicable law.</p>
+          </Section>
+
+          <Section n="11" title="Changes to these Terms">
+            <p>We may update these Terms from time to time. Continued use of DooarsGo after an update means you accept the revised Terms.</p>
+          </Section>
+
+          <Section n="12" title="Governing law">
+            <p>These Terms are governed by the laws of India. Any disputes are subject to the jurisdiction of the courts at Alipurduar, West Bengal.</p>
+          </Section>
+
+          <Section n="13" title="Contact us">
+            <p>Questions about these Terms? Email <a href="mailto:support.dooarsgo@gmail.com" className="font-semibold text-forest">support.dooarsgo@gmail.com</a>.</p>
+          </Section>
+
+          <p className="mt-8 text-xs text-ink/50">See also our <Link to="/privacy" className="font-semibold text-forest">Privacy Policy</Link>.</p>
         </div>
-      </div>
-    </div>
+      </main>
+    </PageBackground>
   )
 }

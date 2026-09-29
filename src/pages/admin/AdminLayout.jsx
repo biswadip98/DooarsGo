@@ -8,7 +8,6 @@ const NAV = [
   { to: '/admin/approvals', label: 'Approvals', icon: '🪪' },
   { to: '/admin/bookings', label: 'Bookings', icon: '🧾' },
   { to: '/admin/settings', label: 'Settings', icon: '⚙️' },
-  { to: '/admin/payouts', label: 'Payouts', icon: '💰' },
 ]
 
 export default function AdminLayout() {

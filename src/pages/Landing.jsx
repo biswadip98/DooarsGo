@@ -12,6 +12,17 @@ const WHATSAPP_NUMBER = '919239514925'
 const DISPLAY_NUMBER = '9239514925'
 const GENERAL_EMAIL = 'dooarsgo@gmail.com'
 const SUPPORT_EMAIL = 'support.dooarsgo@gmail.com'
+
+const FAQS = [
+  { q: 'How do I book a ride?', a: 'Set your pickup and drop, choose Toto, Bike or Car, and tap "Check fare". You see the exact price before you confirm — no surprises.' },
+  { q: 'Which areas do you serve?', a: 'We currently serve Chepani, Kamakhyaguri, Barobisha and nearby Dooars areas, within about a 15 km zone.' },
+  { q: 'Are there any hidden charges or commission?', a: 'No. The fare shown is what you pay, and drivers keep 100% — we take no commission. For cars, only actual toll-gate charges (if any) are paid separately by the rider.' },
+  { q: 'How do I pay?', a: 'You pay the driver directly by cash or UPI at the end of the ride. There are no online payment fees.' },
+  { q: 'What if no driver is available?', a: 'If no driver accepts within about 10 minutes, the request closes and you can simply book again.' },
+  { q: 'How do I become a driver?', a: 'Tap "Become a driver", register with your documents (plus a licence for Bike/Car), and accept the safety terms. Our team verifies and approves you.' },
+  { q: 'Is the ride safe?', a: 'Every driver is ID-verified (and licence-verified for Bike/Car). You also get a pickup code the driver must confirm before the ride can start.' },
+  { q: 'Can I cancel a ride?', a: 'Yes, before the ride starts. Please avoid repeated cancellations — too many in a short time briefly pauses your booking, to stay fair to drivers.' },
+]
 const SITE_URL = 'https://www.dooarsgo.online'
 const SERVICE_AREA = 'Chepani, Kamakhyaguri, Barobisha and nearby Dooars areas'
 
@@ -117,16 +128,23 @@ export default function Landing() {
           <Reveal>
             <div className="mx-auto max-w-2xl text-center">
               <img src={logoMark} alt="DooarsGo" className="mx-auto mb-4 h-16 w-16 object-contain sm:h-20 sm:w-20" style={{ animation: 'dg-float 3s ease-in-out infinite' }} />
-              <span className="dg-pulse mb-3 inline-block rounded-2xl bg-[#facc15] px-4 py-1.5 text-[11px] font-extrabold text-[#14532d] shadow-sm sm:text-sm">🌲ডুয়ার্স এখন ডিজিটাল — Book your ride, pay and ride 🚗</span>
+              <span className="dg-pulse mb-3 inline-block rounded-2xl bg-[#facc15] px-4 py-1.5 text-[11px] font-extrabold text-[#14532d] shadow-sm sm:text-sm">🌟 New in Dooars — go digital, book your ride, pay per ride.</span>
               <h1 className="text-3xl font-extrabold leading-tight text-[#14532d] sm:text-5xl">
                 Your local ride, when you want.
               </h1>
               <p className="mx-auto mt-5 max-w-md text-base text-slate-600">
                 Toto, bike, or car -- booked with one call or a WhatsApp message, straight from your home across rural Dooars.
               </p>
+              <p className="mx-auto mt-2 max-w-md text-base font-semibold text-[#15803d]" lang="bn">টোটো, বাইক বা গাড়ি — ঘরে বসেই বুক করুন।</p>
               <div className="mt-7 flex flex-wrap justify-center gap-3">
                 <Link to={user ? '/book' : '/login'} className="rounded-lg bg-[#15803d] px-6 py-3 text-sm font-bold text-white transition-transform hover:scale-105 hover:bg-[#14532d]">Book a ride</Link>
                 <Link to="/login/driver" className="rounded-lg border-2 border-[#15803d] px-6 py-3 text-sm font-bold text-[#15803d] transition-transform hover:scale-105 hover:bg-[#ecfdf5]">Become a Driver</Link>
+              </div>
+              <a href={`tel:+91${DISPLAY_NUMBER}`} className="mt-4 inline-block text-sm font-bold text-[#14532d] hover:underline">📞 Need Help? Call or WhatsApp: +91 {DISPLAY_NUMBER}</a>
+              <div className="mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs font-bold text-[#15803d]">
+                <span>✓ ID &amp; licence-verified drivers</span>
+                <span>✓ Safe, tracked rides</span>
+                <span>✓ 0% commission</span>
               </div>
             </div>
           </Reveal>
@@ -219,10 +237,43 @@ export default function Landing() {
         </Reveal>
       </section>
 
+      {/* Help & Support — FAQ */}
+      <section id="faq" className="bg-[#ecfdf5] px-4 py-16 sm:px-6">
+        <div className="mx-auto max-w-3xl">
+          <div className="text-center">
+            <span className="inline-block rounded-full bg-[#15803d]/10 px-3 py-1 text-xs font-bold text-[#15803d]">Help &amp; Support</span>
+            <h2 className="mt-3 text-3xl font-extrabold text-[#14532d] sm:text-4xl">Frequently asked questions</h2>
+            <p className="mt-2 text-slate-600">Quick answers to what riders and drivers ask us most.</p>
+          </div>
+          <div className="mt-8 space-y-3">
+            {FAQS.map((f, i) => (
+              <details key={i} className="group rounded-2xl border border-slate-200 bg-white p-4 open:shadow-sm [&_summary::-webkit-details-marker]:hidden">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-semibold text-slate-900">
+                  {f.q}
+                  <svg className="h-5 w-5 shrink-0 text-[#15803d] transition-transform group-open:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg>
+                </summary>
+                <p className="mt-3 text-sm leading-relaxed text-slate-600">{f.a}</p>
+              </details>
+            ))}
+          </div>
+          <div className="mt-8 rounded-2xl border border-slate-200 bg-white p-5 text-center">
+            <p className="text-sm font-semibold text-slate-700">Still need help? We're happy to assist.</p>
+            <div className="mt-3 flex flex-wrap justify-center gap-2">
+              <a href={`mailto:${SUPPORT_EMAIL}`} className="rounded-lg bg-[#15803d] px-4 py-2 text-sm font-semibold text-white hover:bg-[#14532d]">Email support</a>
+              <a href={`https://wa.me/${WHATSAPP_NUMBER}`} target="_blank" rel="noreferrer" className="rounded-lg border border-[#15803d] px-4 py-2 text-sm font-semibold text-[#15803d] hover:bg-[#15803d]/5">WhatsApp us</a>
+            </div>
+            <p className="mt-3 text-xs text-slate-500">{SUPPORT_EMAIL}</p>
+          </div>
+        </div>
+      </section>
+
       <footer id="contact" className="bg-[#064e3b] px-4 py-12 text-slate-200 sm:px-6">
-        <div className="mx-auto grid max-w-6xl gap-10 border-b border-white/10 pb-10 sm:grid-cols-2 lg:grid-cols-6">
-          <div>
-            <img src={logoFull} alt="DooarsGo" className="h-9 w-auto brightness-0 invert" />
+        <div className="mx-auto grid max-w-6xl gap-10 border-b border-white/10 pb-10 sm:grid-cols-2 lg:grid-cols-12">
+          {/* Brand */}
+          <div className="sm:col-span-2 lg:col-span-4">
+            <div className="inline-block rounded-xl bg-white p-2 shadow-sm">
+              <img src={logoFull} alt="DooarsGo" className="h-9 w-auto" />
+            </div>
             <p className="mt-3 max-w-xs text-sm text-slate-300">Affordable, reliable Toto, Bike, and Cab rides for {SERVICE_AREA}.</p>
             <a href={SITE_URL} className="mt-2 block text-sm font-semibold text-emerald-300 hover:text-white">www.dooarsgo.online</a>
             <div className="mt-4 flex gap-2">
@@ -231,8 +282,10 @@ export default function Landing() {
               <SocialIcon href={SOCIAL_LINKS.linkedin} label="LinkedIn" path="M20.4 20.4h-3.5v-5.6c0-1.3 0-3-1.9-3s-2.1 1.4-2.1 2.9v5.7H9.4V9h3.4v1.6h.1c.5-.9 1.6-1.9 3.4-1.9 3.6 0 4.3 2.4 4.3 5.5v6.2ZM5.3 7.4a2 2 0 1 1 0-4 2 2 0 0 1 0 4ZM7 20.4H3.6V9H7v11.4Z" />
             </div>
           </div>
-          <div>
-            <h3 className="text-sm font-bold text-white">Site map</h3>
+
+          {/* Company */}
+          <div className="lg:col-span-2">
+            <h3 className="text-sm font-bold text-white">Company</h3>
             <ul className="mt-3 space-y-2 text-sm">
               <li><a href="#top" className="hover:text-white">Home</a></li>
               <li><a href="#services" className="hover:text-white">Services</a></li>
@@ -241,30 +294,30 @@ export default function Landing() {
               <li><Link to="/team" className="hover:text-white">Our team</Link></li>
             </ul>
           </div>
-          <div>
-            <h3 className="text-sm font-bold text-white">Contact</h3>
+
+          {/* Help & Support */}
+          <div className="lg:col-span-3">
+            <h3 className="text-sm font-bold text-white">Help &amp; Support</h3>
             <ul className="mt-3 space-y-2 text-sm">
-              <li><a href={`tel:${DISPLAY_NUMBER}`} className="hover:text-white">+91 {DISPLAY_NUMBER}</a></li>
+              <li><a href="#faq" className="hover:text-white">FAQ</a></li>
+              <li><a href={`tel:+91${DISPLAY_NUMBER}`} className="hover:text-white">+91 {DISPLAY_NUMBER}</a></li>
               <li><a href={`https://wa.me/${WHATSAPP_NUMBER}`} className="hover:text-white">WhatsApp support</a></li>
-              <li><a href={`mailto:${GENERAL_EMAIL}`} className="hover:text-white">{GENERAL_EMAIL}</a></li>
               <li><a href={`mailto:${SUPPORT_EMAIL}`} className="hover:text-white">{SUPPORT_EMAIL}</a></li>
+              <li><a href={`mailto:${GENERAL_EMAIL}`} className="hover:text-white">{GENERAL_EMAIL}</a></li>
             </ul>
           </div>
-          <div>
+
+          {/* Legal */}
+          <div className="lg:col-span-1">
             <h3 className="text-sm font-bold text-white">Legal</h3>
             <ul className="mt-3 space-y-2 text-sm">
-              <li><Link to="/privacy" className="hover:text-white">Privacy Policy</Link></li>
-              <li><Link to="/terms" className="hover:text-white">Terms &amp; Conditions</Link></li>
+              <li><Link to="/privacy" className="hover:text-white">Privacy</Link></li>
+              <li><Link to="/terms" className="hover:text-white">Terms</Link></li>
             </ul>
           </div>
-          <div>
-            <h3 className="text-sm font-bold text-white">Developer &amp; Architect</h3>
-            <ul className="mt-3 space-y-2 text-sm">
-              <li className="text-slate-300">Biswadip Bhattacharjee</li>
-              <li><a href="https://www.biswadip.online" target="_blank" rel="noopener noreferrer" className="font-semibold text-emerald-300 hover:text-white">biswadip.online</a></li>
-            </ul>
-          </div>
-          <div>
+
+          {/* Social */}
+          <div className="lg:col-span-2">
             <h3 className="text-sm font-bold text-white">Social</h3>
             <ul className="mt-3 space-y-2 text-sm">
               <li><a href={SOCIAL_LINKS.facebook} target="_blank" rel="noopener noreferrer" className="hover:text-white">Facebook</a></li>
@@ -274,8 +327,25 @@ export default function Landing() {
             </ul>
           </div>
         </div>
-        <p className="mx-auto mt-6 max-w-6xl text-center text-xs text-slate-400">&copy; {new Date().getFullYear()} DooarsGo and Biswadip Bhattacharjee. All rights reserved.</p>
+
+        {/* Bottom bar */}
+        <div className="mx-auto mt-6 flex max-w-6xl flex-col items-center gap-2 text-center text-xs text-slate-400 sm:flex-row sm:justify-between sm:text-left">
+          <p>&copy; {new Date().getFullYear()} DooarsGo | Biswadip Bhattacharjee. All rights reserved.</p>
+          <p>Developed &amp; architected by <a href="https://www.biswadip.online" target="_blank" rel="noopener noreferrer" className="font-semibold text-emerald-300 hover:text-white">Biswadip Bhattacharjee | www.biswadip.online</a></p>
+        </div>
       </footer>
+
+      <a
+        href={`https://wa.me/${WHATSAPP_NUMBER}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Chat with DooarsGo on WhatsApp"
+        className="fixed bottom-5 right-5 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] shadow-lg transition-transform hover:scale-110"
+      >
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="white" aria-hidden="true">
+          <path d="M17.5 14.4c-.3-.1-1.7-.8-1.9-.9-.3-.1-.5-.1-.7.1-.2.3-.7.9-.9 1.1-.2.2-.3.2-.6.1-.3-.1-1.2-.5-2.3-1.4-.9-.8-1.4-1.7-1.6-2-.2-.3 0-.5.1-.6.1-.1.3-.3.4-.5.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5-.1-.1-.7-1.6-.9-2.2-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.5s1.1 2.9 1.2 3.1c.1.2 2.1 3.2 5.1 4.5.7.3 1.3.5 1.7.6.7.2 1.4.2 1.9.1.6-.1 1.7-.7 1.9-1.4.2-.7.2-1.3.2-1.4-.1-.1-.3-.2-.6-.3z M12 2a10 10 0 0 0-8.5 15.3L2 22l4.8-1.3A10 10 0 1 0 12 2zm0 18.2c-1.5 0-3-.4-4.3-1.2l-.3-.2-2.9.8.8-2.8-.2-.3A8.2 8.2 0 1 1 12 20.2z" />
+        </svg>
+      </a>
     </div>
   )
 }

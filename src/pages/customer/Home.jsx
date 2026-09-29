@@ -66,6 +66,9 @@ export default function Home() {
         </Link>
 
         <div className="mt-3 grid gap-2">
+          <Link to="/rides" className="rounded-xl border border-leafbright/40 text-forest font-semibold text-sm text-center py-3 hover:bg-leafbright/10">
+            My rides →
+          </Link>
           {profile?.is_driver ? (
             <Link to="/driver" className="rounded-xl border border-leafbright/40 text-forest font-semibold text-sm text-center py-3 hover:bg-leafbright/10">
               Go to Driver area →

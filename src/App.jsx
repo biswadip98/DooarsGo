@@ -23,6 +23,7 @@ import AdminPayouts from './pages/admin/AdminPayouts'
 import Profile from './pages/Profile'
 import PrivacyPolicy from './pages/PrivacyPolicy'
 import Terms from './pages/Terms'
+import MyRides from './pages/customer/MyRides'
 
 export default function App() {
   return (
@@ -48,7 +49,9 @@ export default function App() {
             {/* Customer */}
             <Route path="/home" element={<ProtectedRoute><CustomerHome /></ProtectedRoute>} />
             <Route path="/book" element={<ProtectedRoute><BookRide /></ProtectedRoute>} />
+            <Route path="/rides" element={<ProtectedRoute><MyRides /></ProtectedRoute>} />
             <Route path="/ride/:id" element={<ProtectedRoute><RideStatus /></ProtectedRoute>} />
+            
 
             {/* Driver */}
             <Route path="/driver/register" element={<ProtectedRoute><DriverRegister /></ProtectedRoute>} />
