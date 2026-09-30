@@ -401,7 +401,7 @@ export default function Landing() {
         {/* Bottom bar */}
         <div className="mx-auto mt-6 flex max-w-6xl flex-col items-center gap-2 text-center text-xs text-slate-400 sm:flex-row sm:justify-between sm:text-left">
           <p>&copy; {new Date().getFullYear()} DooarsGo | Biswadip Bhattacharjee. All rights reserved.</p>
-          <p>Developed &amp; architected by <a href="https://www.biswadip.online" target="_blank" rel="noopener noreferrer" className="font-semibold text-emerald-300 hover:text-white">Biswadip Bhattacharjee | www.biswadip.online</a></p>
+          <p>Developed &amp; architected by <a href="https://www.biswadip.online" target="_blank" rel="noopener noreferrer" className="font-semibold text-emerald-300 hover:text-white">Biswadip Bhattacharjee|www.biswadip.online</a></p>
         </div>
       </footer>
 
