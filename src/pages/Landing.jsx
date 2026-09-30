@@ -8,8 +8,8 @@ import heroCar from '../assets/hero-car.jpg'
 import heroBike from '../assets/hero-bike.jpg'
 import heroToto from '../assets/hero-toto.jpg'
 
-const WHATSAPP_NUMBER = '919239514925'
-const DISPLAY_NUMBER = '9239514925'
+const WHATSAPP_NUMBER = '919239519425'
+const DISPLAY_NUMBER = '9239519425'
 const GENERAL_EMAIL = 'dooarsgo@gmail.com'
 const SUPPORT_EMAIL = 'support.dooarsgo@gmail.com'
 
@@ -26,12 +26,11 @@ const FAQS = [
 const SITE_URL = 'https://www.dooarsgo.online'
 const SERVICE_AREA = 'Chepani, Kamakhyaguri, Barobisha and nearby Dooars areas'
 
-// >>> PASTE YOUR REAL SOCIAL LINKS HERE (these are demo links for now) <<<
 const SOCIAL_LINKS = {
-  facebook: 'https://facebook.com/dooarsgo',           // your Facebook profile
-  instagram: 'https://instagram.com/dooarsgo',         // your Instagram
-  page: 'https://facebook.com/dooarsgo.page',          // your Facebook PAGE
-  linkedin: 'https://linkedin.com/company/dooarsgo',   // your LinkedIn
+  facebook: 'https://www.facebook.com/share/1DTgW4oeTc/',
+  instagram: 'https://www.instagram.com/dooarsgo',
+  page: 'https://www.facebook.com/share/1JdWGuHNtC/',
+  linkedin: 'https://www.linkedin.com/in/dooarsgo',
 }
 
 // Big cell = Car, small cells = Bike + Toto.
@@ -73,6 +72,76 @@ function Reveal({ children, className = '' }) {
     <div ref={ref} className={`transition-all duration-700 ease-out ${visible ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'} ${className}`}>
       {children}
     </div>
+  )
+}
+
+// ---- Install App (PWA) ----------------------------------------------------
+// Captures Android/Chrome's install prompt and offers a one-tap install.
+// On iPhone (which blocks auto-install) it shows the Add-to-Home-Screen steps.
+function useInstallPrompt() {
+  const [deferred, setDeferred] = useState(null)
+  const [installed, setInstalled] = useState(false)
+  useEffect(() => {
+    const onPrompt = (e) => { e.preventDefault(); setDeferred(e) }
+    const onInstalled = () => { setInstalled(true); setDeferred(null) }
+    window.addEventListener('beforeinstallprompt', onPrompt)
+    window.addEventListener('appinstalled', onInstalled)
+    if (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) setInstalled(true)
+    return () => {
+      window.removeEventListener('beforeinstallprompt', onPrompt)
+      window.removeEventListener('appinstalled', onInstalled)
+    }
+  }, [])
+  return { deferred, installed, setDeferred }
+}
+
+function InstallButton() {
+  const { deferred, installed, setDeferred } = useInstallPrompt()
+  const [showIosHelp, setShowIosHelp] = useState(false)
+  const isIos = typeof navigator !== 'undefined' && /iphone|ipad|ipod/i.test(navigator.userAgent)
+
+  if (installed) return null
+
+  async function handleClick() {
+    if (deferred) {
+      deferred.prompt()
+      try { await deferred.userChoice } catch (_) {}
+      setDeferred(null)
+    } else if (isIos) {
+      setShowIosHelp(true)
+    } else {
+      // Fallback for browsers that haven't fired the prompt yet.
+      setShowIosHelp(true)
+    }
+  }
+
+  return (
+    <>
+      <button
+        onClick={handleClick}
+        className="dg-pulse inline-flex items-center gap-2 rounded-lg bg-[#facc15] px-6 py-3 text-sm font-extrabold text-[#14532d] shadow-md transition-transform hover:scale-105 hover:bg-[#eab308]"
+      >
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M12 3a1 1 0 0 1 1 1v9.6l2.3-2.3a1 1 0 1 1 1.4 1.4l-4 4a1 1 0 0 1-1.4 0l-4-4a1 1 0 1 1 1.4-1.4L11 13.6V4a1 1 0 0 1 1-1Zm-7 14a1 1 0 0 1 1 1v1h12v-1a1 1 0 1 1 2 0v2a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-2a1 1 0 0 1 1-1Z" />
+        </svg>
+        Install App
+      </button>
+
+      {showIosHelp && (
+        <div className="fixed inset-0 z-[3000] flex items-center justify-center bg-black/50 p-5" onClick={() => setShowIosHelp(false)}>
+          <div className="w-full max-w-xs rounded-2xl bg-white p-6 text-center" onClick={(e) => e.stopPropagation()}>
+            <div className="text-4xl mb-2">📲</div>
+            <h3 className="text-lg font-extrabold text-[#14532d]">Install DooarsGo</h3>
+            <p className="mt-2 text-sm text-slate-600">
+              {isIos
+                ? 'Tap the Share button in Safari, then choose "Add to Home Screen".'
+                : 'Open your browser menu (⋮) and tap "Install app" or "Add to Home screen".'}
+            </p>
+            <button onClick={() => setShowIosHelp(false)} className="mt-4 w-full rounded-lg bg-[#15803d] py-2.5 text-sm font-semibold text-white hover:bg-[#14532d]">Got it</button>
+          </div>
+        </div>
+      )}
+    </>
   )
 }
 
@@ -139,6 +208,7 @@ export default function Landing() {
               <div className="mt-7 flex flex-wrap justify-center gap-3">
                 <Link to={user ? '/book' : '/login'} className="rounded-lg bg-[#15803d] px-6 py-3 text-sm font-bold text-white transition-transform hover:scale-105 hover:bg-[#14532d]">Book a ride</Link>
                 <Link to="/login/driver" className="rounded-lg border-2 border-[#15803d] px-6 py-3 text-sm font-bold text-[#15803d] transition-transform hover:scale-105 hover:bg-[#ecfdf5]">Become a Driver</Link>
+                <InstallButton />
               </div>
               <a href={`tel:+91${DISPLAY_NUMBER}`} className="mt-4 inline-block text-sm font-bold text-[#14532d] hover:underline">📞 Need Help? Call or WhatsApp: +91 {DISPLAY_NUMBER}</a>
               <div className="mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs font-bold text-[#15803d]">
