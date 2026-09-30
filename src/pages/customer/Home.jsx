@@ -6,7 +6,7 @@ import heroToto from '../../assets/hero-toto.jpg'
 import heroBike from '../../assets/hero-bike.jpg'
 
 const SUPPORT_PHONE = '9434141673'
-const WHATSAPP = '919239514925'
+const WHATSAPP = '919239519425'
 
 const RIDES = [
   { img: heroToto, label: 'Toto', note: 'From ₹20' },
