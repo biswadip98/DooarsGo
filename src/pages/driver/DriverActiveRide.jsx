@@ -6,6 +6,12 @@ import Brand from '../../components/Brand'
 import Chat from '../../components/Chat'
 
 const STEPS = ['Accepted', 'Arrived', 'On the way', 'Completed']
+const END_REASONS = [
+  'Passenger asked to stop early',
+  'Passenger got off here',
+  'Emergency / urgent',
+  'Road blocked ahead',
+]
 function stepIndex(status) {
   if (status === 'ACCEPTED') return 0
   if (status === 'ARRIVED') return 1
@@ -25,6 +31,8 @@ export default function DriverActiveRide() {
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
   const [people, setPeople] = useState(null)
+  const [showEnd, setShowEnd] = useState(false)
+  const [otherReason, setOtherReason] = useState('')
   const timerRef = useRef(null)
 
   useEffect(() => {
@@ -96,6 +104,19 @@ export default function DriverActiveRide() {
     await supabase.rpc('cancel_ride', { p_ride_id: id, p_cancelled_by: 'driver', p_reason: 'driver_unavailable', p_actor_id: user.id })
     setBusy(false)
     navigate('/driver')
+  }
+
+  function endRideWith(reason) {
+    setErr(''); setBusy(true)
+    if (!navigator.geolocation) { setBusy(false); setErr('Location is needed to end the ride.'); return }
+    navigator.geolocation.getCurrentPosition(async (pos) => {
+      const { data, error } = await supabase.rpc('end_ride_early', {
+        p_ride_id: id, p_lng: pos.coords.longitude, p_lat: pos.coords.latitude, p_ended_by: 'driver', p_reason: reason,
+      })
+      setBusy(false)
+      if (error) { setErr(error.message); return }
+      if (!data?.ok) setErr('Could not end the ride here.')
+    }, () => { setBusy(false); setErr('Could not read your location.') })
   }
 
   if (loading) return <div className="min-h-screen flex items-center justify-center text-ink/50 text-sm">Loading…</div>
@@ -222,7 +243,31 @@ export default function DriverActiveRide() {
               className="w-full rounded-xl bg-leafbright text-white font-semibold py-3.5 text-sm hover:bg-leaf disabled:opacity-60 transition-transform active:scale-[.98]">
               {busy ? '…' : `Finish ride · ₹${ride.fare_estimate}`}
             </button>
-            <div className="text-xs text-ink/50 text-center">You can finish only within 200 m of the drop.</div>
+            <div className="text-xs text-ink/50 text-center">You can finish only within 400 m of the drop.</div>
+
+            {!showEnd ? (
+              <button onClick={() => setShowEnd(true)}
+                className="w-full rounded-xl bg-white text-red-600 border border-red-200 font-semibold py-2.5 text-sm hover:bg-red-50">
+                End ride here (stop early)
+              </button>
+            ) : (
+              <div className="rounded-xl border border-red-200 p-3 space-y-2">
+                <div className="text-sm font-semibold text-slate-900">End at current spot?</div>
+                <div className="text-xs text-ink/60">Rider pays only for distance covered.</div>
+                {END_REASONS.map((r) => (
+                  <button key={r} disabled={busy} onClick={() => endRideWith(r)}
+                    className="w-full text-left rounded-lg border border-mist px-3 py-2 text-sm hover:bg-red-50 hover:border-red-200 disabled:opacity-60">{r}</button>
+                ))}
+                <input value={otherReason} onChange={(e) => setOtherReason(e.target.value)} placeholder="Other reason (optional)"
+                  className="w-full rounded-lg border border-mist bg-mist/30 px-3 py-2 text-sm outline-none focus:border-leafbright" />
+                <button disabled={busy} onClick={() => endRideWith(otherReason.trim() || 'Other')}
+                  className="w-full rounded-lg bg-red-600 text-white py-2 text-sm font-semibold hover:bg-red-700 disabled:opacity-60">
+                  {busy ? 'Ending…' : 'End ride here'}
+                </button>
+                <button onClick={() => setShowEnd(false)} disabled={busy}
+                  className="w-full rounded-lg bg-mist py-2 text-sm font-semibold text-ink/70">Keep going</button>
+              </div>
+            )}
           </div>
         )}
 

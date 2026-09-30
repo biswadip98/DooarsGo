@@ -21,6 +21,12 @@ const STATUS_TEXT = {
 }
 
 const STEPS = ['Requested', 'Driver assigned', 'Arrived', 'On the way', 'Completed']
+const END_REASONS = [
+  'Passenger getting off early',
+  'Reached a closer point',
+  'Emergency / urgent',
+  'Road blocked ahead',
+]
 const CANCEL_REASONS = [
   { code: 'driver_delay', label: 'Driver is taking too long' },
   { code: 'booked_by_mistake', label: 'Booked by mistake' },
@@ -53,6 +59,9 @@ export default function RideStatus() {
   const [cancelling, setCancelling] = useState(false)
   const [showCancel, setShowCancel] = useState(false)
   const [showComplete, setShowComplete] = useState(false)
+  const [showEnd, setShowEnd] = useState(false)
+  const [otherReason, setOtherReason] = useState('')
+  const [ending, setEnding] = useState(false)
   const prevStatus = useRef(null)
   const posTimer = useRef(null)
 
@@ -127,6 +136,18 @@ export default function RideStatus() {
     await supabase.rpc('cancel_ride', { p_ride_id: id, p_cancelled_by: 'rider', p_reason: reason, p_actor_id: user.id })
     setCancelling(false)
     navigate('/home')
+  }
+
+  function endRideWith(reason) {
+    setEnding(true)
+    if (!navigator.geolocation) { setEnding(false); return }
+    navigator.geolocation.getCurrentPosition(async (pos) => {
+      await supabase.rpc('end_ride_early', {
+        p_ride_id: id, p_lng: pos.coords.longitude, p_lat: pos.coords.latitude, p_ended_by: 'rider', p_reason: reason,
+      })
+      setEnding(false)
+      // Realtime flips the ride to COMPLETED -> the completion popup shows automatically.
+    }, () => setEnding(false))
   }
 
   async function rate(stars) {
@@ -294,6 +315,31 @@ export default function RideStatus() {
         {rated && <div className="dg-up text-center text-sm text-forest font-semibold bg-leafbright/10 border border-leafbright/30 rounded-xl py-3">Thanks for your rating! 🙏</div>}
 
         {/* Actions */}
+        {status === 'IN_PROGRESS' && !showEnd && (
+          <button onClick={() => setShowEnd(true)}
+            className="w-full rounded-xl bg-white text-red-600 border border-red-200 font-semibold py-3 text-sm hover:bg-red-50">
+            End ride here
+          </button>
+        )}
+        {status === 'IN_PROGRESS' && showEnd && (
+          <div className="dg-up bg-white rounded-2xl border border-red-200 p-4 space-y-2">
+            <div className="text-sm font-semibold text-slate-900">End the ride at your current spot?</div>
+            <div className="text-xs text-ink/60">You'll pay only for the distance already covered.</div>
+            {END_REASONS.map((r) => (
+              <button key={r} disabled={ending} onClick={() => endRideWith(r)}
+                className="w-full text-left rounded-lg border border-mist px-3 py-2.5 text-sm hover:bg-red-50 hover:border-red-200 disabled:opacity-60">{r}</button>
+            ))}
+            <input value={otherReason} onChange={(e) => setOtherReason(e.target.value)} placeholder="Other reason (optional)"
+              className="w-full rounded-lg border border-mist bg-mist/30 px-3 py-2 text-sm outline-none focus:border-leafbright" />
+            <button disabled={ending} onClick={() => endRideWith(otherReason.trim() || 'Other')}
+              className="w-full rounded-lg bg-red-600 text-white py-2.5 text-sm font-semibold hover:bg-red-700 disabled:opacity-60">
+              {ending ? 'Ending…' : 'End ride here'}
+            </button>
+            <button onClick={() => setShowEnd(false)} disabled={ending}
+              className="w-full rounded-lg bg-mist py-2.5 text-sm font-semibold text-ink/70 hover:bg-mist/70">Keep going</button>
+          </div>
+        )}
+
         {canCancel && !showCancel && (
           <button onClick={() => setShowCancel(true)}
             className="w-full rounded-xl bg-white text-red-600 border border-red-200 font-semibold py-3 text-sm hover:bg-red-50">
