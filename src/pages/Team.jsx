@@ -89,7 +89,7 @@ export default function Team() {
       </section>
 
       <footer className="bg-[#064e3b] px-4 py-8 text-center text-slate-300 sm:px-6">
-        <img src={logoFull} alt="DooarsGo" className="mx-auto h-8 w-auto brightness-0 invert" />
+        <img src={logoMark} alt="DooarsGo" className="mx-auto h-8 w-auto brightness-0 invert" />
         <p className="mt-2 text-xs text-slate-400">&copy; {new Date().getFullYear()} DooarsGo and Biswadip Bhattacharjee. All rights reserved.</p>
         <Link to="/" className="mt-2 inline-block text-sm font-semibold text-emerald-300 hover:text-white">← Back to home</Link>
       </footer>

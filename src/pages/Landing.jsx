@@ -119,7 +119,7 @@ function InstallButton() {
     <>
       <button
         onClick={handleClick}
-        className="dg-pulse inline-flex items-center gap-2 rounded-lg bg-[#facc15] px-6 py-3 text-sm font-extrabold text-[#14532d] shadow-md transition-transform hover:scale-105 hover:bg-[#eab308]"
+        className="inline-flex items-center gap-2 rounded-lg border-2 border-[#15803d] px-6 py-3 text-sm font-bold text-[#15803d] transition-transform hover:scale-105 hover:bg-[#ecfdf5]"
       >
         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
           <path d="M12 3a1 1 0 0 1 1 1v9.6l2.3-2.3a1 1 0 1 1 1.4 1.4l-4 4a1 1 0 0 1-1.4 0l-4-4a1 1 0 1 1 1.4-1.4L11 13.6V4a1 1 0 0 1 1-1Zm-7 14a1 1 0 0 1 1 1v1h12v-1a1 1 0 1 1 2 0v2a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-2a1 1 0 0 1 1-1Z" />
@@ -199,16 +199,18 @@ export default function Landing() {
               <img src={logoMark} alt="DooarsGo" className="mx-auto mb-4 h-16 w-16 object-contain sm:h-20 sm:w-20" style={{ animation: 'dg-float 3s ease-in-out infinite' }} />
               <span className="dg-pulse mb-3 inline-block rounded-2xl bg-[#facc15] px-4 py-1.5 text-[11px] font-extrabold text-[#14532d] shadow-sm sm:text-sm">🌟 New in Dooars — go digital, book your ride, pay per ride.</span>
               <h1 className="text-3xl font-extrabold leading-tight text-[#14532d] sm:text-5xl">
-                Your local ride, when you want.
+                Book Toto, Bike or Car — From Home!
               </h1>
               <p className="mx-auto mt-5 max-w-md text-base text-slate-600">
                 Toto, bike, or car -- booked with one call or a WhatsApp message, straight from your home across rural Dooars.
               </p>
               <p className="mx-auto mt-2 max-w-md text-base font-semibold text-[#15803d]" lang="bn">টোটো, বাইক বা গাড়ি — ঘরে বসেই বুক করুন।</p>
-              <div className="mt-7 flex flex-wrap justify-center gap-3">
-                <Link to={user ? '/book' : '/login'} className="rounded-lg bg-[#15803d] px-6 py-3 text-sm font-bold text-white transition-transform hover:scale-105 hover:bg-[#14532d]">Book a ride</Link>
-                <Link to="/login/driver" className="rounded-lg border-2 border-[#15803d] px-6 py-3 text-sm font-bold text-[#15803d] transition-transform hover:scale-105 hover:bg-[#ecfdf5]">Become a Driver</Link>
-                <InstallButton />
+              <div className="mt-7 flex flex-col items-center gap-3">
+                <Link to={user ? '/book' : '/login'} className="w-full max-w-xs rounded-xl bg-[#15803d] px-8 py-4 text-center text-lg font-extrabold text-white shadow-lg transition-transform hover:scale-105 hover:bg-[#14532d]">Book a Ride</Link>
+                <div className="flex flex-wrap justify-center gap-3">
+                  <Link to="/login/driver" className="rounded-lg border-2 border-[#15803d] px-6 py-3 text-sm font-bold text-[#15803d] transition-transform hover:scale-105 hover:bg-[#ecfdf5]">Become a Driver</Link>
+                  <InstallButton />
+                </div>
               </div>
               <a href={`tel:+91${DISPLAY_NUMBER}`} className="mt-4 inline-block text-sm font-bold text-[#14532d] hover:underline">📞 Need Help? Call or WhatsApp: +91 {DISPLAY_NUMBER}</a>
               <div className="mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs font-bold text-[#15803d]">

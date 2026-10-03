@@ -5,7 +5,7 @@ import heroCar from '../../assets/hero-car.jpg'
 import heroToto from '../../assets/hero-toto.jpg'
 import heroBike from '../../assets/hero-bike.jpg'
 
-const SUPPORT_PHONE = '9434141673'
+const SUPPORT_PHONE = '9239519425'
 const WHATSAPP = '919239519425'
 
 const RIDES = [
