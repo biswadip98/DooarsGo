@@ -31,6 +31,19 @@ export default function BookRide() {
   const [searching, setSearching] = useState(false)
   const [searched, setSearched] = useState(false)
 
+  // Booking notice (admin-controlled): { on, title, message }
+  const [notice, setNotice] = useState(null)
+  const [showNotice, setShowNotice] = useState(false)
+
+  useEffect(() => {
+    // Fetch the admin booking notice (coming-soon / maintenance message).
+    supabase.rpc('get_booking_notice').then(({ data }) => {
+      if (data && data.on) { setNotice(data); setShowNotice(true) }
+    })
+  }, [])
+
+  const noticeOn = !!(notice && notice.on)
+
   useEffect(() => {
     if (!navigator.geolocation) return
     navigator.geolocation.getCurrentPosition(
@@ -136,13 +149,15 @@ export default function BookRide() {
     setQuote(data)
   }
 
-    async function requestRide() {
+  async function requestRide() {
     setError('')
+    // Admin booking notice (launch / maintenance) blocks booking.
+    if (noticeOn) { setShowNotice(true); return }
     if (!navigator.geolocation) {
       setError('Location is required to book a ride. Please use a device with GPS.')
       return
     }
-        setBusy('requesting')
+    setBusy('requesting')
     // Confirm location permission is granted (industry standard — no booking without GPS).
     try {
       if (navigator.permissions) {
@@ -196,6 +211,20 @@ export default function BookRide() {
 
   return (
     <div className="min-h-screen flex flex-col">
+      {/* Admin booking notice popup (launch / maintenance) */}
+      {noticeOn && showNotice && (
+        <div className="fixed inset-0 z-[3000] flex items-center justify-center bg-black/50 p-5" onClick={() => setShowNotice(false)}>
+          <div className="w-full max-w-sm rounded-2xl bg-white p-6 text-center shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <div className="text-4xl mb-2">🚦</div>
+            <h2 className="font-display text-xl font-extrabold text-forest">{notice.title || 'Booking notice'}</h2>
+            <p className="mt-3 whitespace-pre-line text-sm leading-relaxed text-ink/70">{notice.message}</p>
+            <button onClick={() => setShowNotice(false)} className="mt-5 w-full rounded-xl bg-forest py-3 text-sm font-semibold text-white hover:bg-leaf">
+              Got it
+            </button>
+          </div>
+        </div>
+      )}
+
       <header className="px-5 py-3 border-b border-black/5 bg-white/80 backdrop-blur flex items-center justify-between">
         <button onClick={() => navigate(-1)} className="inline-flex items-center gap-1 text-sm font-semibold text-forest hover:underline">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6" /></svg>
@@ -216,6 +245,14 @@ export default function BookRide() {
       </div>
 
       <div className="flex-1 max-w-md w-full mx-auto p-4 space-y-3">
+        {/* Persistent banner while the notice is on */}
+        {noticeOn && (
+          <button onClick={() => setShowNotice(true)}
+            className="w-full text-left rounded-xl border border-amber-300 bg-amber-50 px-3 py-2.5 text-xs font-semibold text-amber-800">
+            🚦 {notice.title || 'Booking is not open yet'} — tap for details
+          </button>
+        )}
+
         <div className="flex gap-1 bg-mist rounded-xl p-1 border border-black/5">
           {seg('pickup', 'Tap map = Pickup')}
           {seg('drop', 'Tap map = Drop')}
@@ -315,9 +352,9 @@ export default function BookRide() {
               </div>
             )}
 
-            <button onClick={requestRide} disabled={busy === 'requesting'}
+            <button onClick={requestRide} disabled={busy === 'requesting' || noticeOn}
               className="w-full rounded-xl bg-leafbright text-white font-semibold py-3 text-sm hover:bg-leaf disabled:opacity-60">
-              {busy === 'requesting' ? 'Requesting…' : 'Request ride'}
+              {noticeOn ? 'Booking not open yet' : busy === 'requesting' ? 'Requesting…' : 'Request ride'}
             </button>
           </>
         )}

@@ -71,6 +71,22 @@ export default function AdminSettings() {
     else { setPlatform({ ...platform, bookings_paused: next }); flash(next ? 'New bookings PAUSED' : 'New bookings resumed') }
   }
 
+  async function toggleNotice() {
+    if (!platform) return
+    const next = !platform.booking_notice_on
+    const { error } = await supabase.from('platform_settings').update({ booking_notice_on: next }).eq('id', 1)
+    if (error) fail(error)
+    else { setPlatform({ ...platform, booking_notice_on: next }); flash(next ? 'Booking notice ON' : 'Booking notice OFF') }
+  }
+
+  async function saveNotice() {
+    const { error } = await supabase.from('platform_settings').update({
+      booking_notice_title: platform.booking_notice_title,
+      booking_notice_message: platform.booking_notice_message,
+    }).eq('id', 1)
+    error ? fail(error) : flash('Booking notice saved')
+  }
+
   async function savePlatform() {
     const { error } = await supabase.from('platform_settings').update({
       min_withdrawal: platform.min_withdrawal,
@@ -129,6 +145,33 @@ export default function AdminSettings() {
 
       {saved && <div className="mb-3 text-xs font-semibold text-forest bg-leafbright/15 border border-leafbright/30 rounded-lg px-3 py-2">✓ {saved}</div>}
       {error && <div className="mb-3 text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{error}</div>}
+
+      {/* Booking Notice (coming-soon / maintenance popup on the Book page) */}
+      {platform && (
+        <div className={`mb-4 rounded-2xl border p-4 ${platform.booking_notice_on ? 'border-amber-300 bg-amber-50' : 'border-mist bg-white'}`}>
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <h3 className="font-bold text-forest">Booking notice — {platform.booking_notice_on ? 'SHOWING' : 'Hidden'}</h3>
+              <p className="text-xs text-ink/60">When ON, riders see this message on the Book page and <b>cannot book</b>. Use it for launch (“Opens 11 Oct”), maintenance, or a pause. Turn OFF to open booking.</p>
+            </div>
+            <button onClick={toggleNotice} aria-label="Toggle booking notice"
+              className={`relative h-9 w-16 shrink-0 rounded-full transition-colors ${platform.booking_notice_on ? 'bg-amber-500' : 'bg-gray-300'}`}>
+              <span className={`absolute top-1 h-7 w-7 rounded-full bg-white shadow transition-all ${platform.booking_notice_on ? 'right-1' : 'left-1'}`} />
+            </button>
+          </div>
+          <div className="mt-3 space-y-2">
+            <Field label="Title (shown big)">
+              <input className={inputCls} value={platform.booking_notice_title ?? ''}
+                onChange={(e) => setPlatform({ ...platform, booking_notice_title: e.target.value })} />
+            </Field>
+            <Field label="Message (English + Bengali — one per line is fine)">
+              <textarea rows={5} className={`${inputCls} resize-y`} value={platform.booking_notice_message ?? ''}
+                onChange={(e) => setPlatform({ ...platform, booking_notice_message: e.target.value })} />
+            </Field>
+            <button onClick={saveNotice} className="rounded-lg bg-forest text-white text-xs font-semibold px-3 py-1.5 hover:bg-leaf">Save notice text</button>
+          </div>
+        </div>
+      )}
 
       {platform && (
         <div className={`mb-4 flex items-center justify-between rounded-2xl border p-4 ${platform.bookings_paused ? 'border-red-300 bg-red-50' : 'border-leafbright/40 bg-leafbright/10'}`}>
