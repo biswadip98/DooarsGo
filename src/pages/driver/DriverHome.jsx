@@ -110,9 +110,9 @@ export default function DriverHome() {
       },
       (err) => {
         setMsg(
-          err.code === 1
-            ? 'Location is blocked. Allow location access (tap the 🔒 / ⓘ icon near the address bar → Location → Allow), then try again. You must share your location to receive rides.'
-            : 'Could not get your location. Please check GPS is on and try again.'
+                    err.code === 1
+            ? '📍 Please allow location access.\n\nStep 1: Turn ON your phone GPS (swipe down → tap Location).\n\nStep 2 (Android): Tap the 🔒 icon left of the web address at the top → Location → Allow → reload.\nStep 2 (iPhone): Settings → Privacy → Location Services → ON, then Safari → Allow.\n\nYou must share your location to go online and receive rides.'
+            : '📍 Could not get your location. Please turn ON your phone GPS (swipe down → Location) and try again.'
         )
         setOnline(false)
         try { localStorage.removeItem('dg_driver_online') } catch (_) {}
@@ -229,7 +229,11 @@ export default function DriverHome() {
         📜 My rides & earnings history →
       </button>
 
-      {msg && <div className="dg-up mt-3 text-xs font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">{msg}</div>}
+      {msg && (
+  <div className="mt-3 text-xs font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 whitespace-pre-line">
+    {msg}
+  </div>
+)}
 
       {activeRide && (
         <button onClick={() => navigate('/driver/ride/' + activeRide.id)}
