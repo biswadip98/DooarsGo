@@ -136,9 +136,24 @@ export default function BookRide() {
     setQuote(data)
   }
 
-  async function requestRide() {
+    async function requestRide() {
     setError('')
-    setBusy('requesting')
+    if (!navigator.geolocation) {
+      setError('Location is required to book a ride. Please use a device with GPS.')
+      return
+    }
+        setBusy('requesting')
+    // Confirm location permission is granted (industry standard — no booking without GPS).
+    try {
+      if (navigator.permissions) {
+        const perm = await navigator.permissions.query({ name: 'geolocation' })
+        if (perm.state === 'denied') {
+          setBusy('')
+          setError('Location is blocked. Allow location access in your browser, then book again. We need your location to send the ride to a nearby driver.')
+          return
+        }
+      }
+    } catch (_) {}
     // Cancellation cooldown: block if the rider has cancelled too many times recently.
     const { data: gate } = await supabase.rpc('check_booking_allowed')
     if (gate && gate.allowed === false) {

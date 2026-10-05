@@ -92,12 +92,33 @@ export default function DriverHome() {
     })
   }
 
-  async function goOnline() {
-    if (!navigator.geolocation) { setMsg('Location is needed to go online.'); return }
-    setOnline(true)
-    try { localStorage.setItem('dg_driver_online', '1') } catch (_) {}
-    tick()
-    timerRef.current = setInterval(tick, 7000)
+    async function goOnline() {
+    if (!navigator.geolocation) {
+      setMsg('Location is not available on this device. You cannot go online without GPS.')
+      return
+    }
+    setMsg('Getting your location…')
+    // Must get a real GPS fix BEFORE going online — otherwise riders can't find you.
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        posRef.current = { lat: pos.coords.latitude, lng: pos.coords.longitude }
+        setMsg('')
+        setOnline(true)
+        try { localStorage.setItem('dg_driver_online', '1') } catch (_) {}
+        tick()
+        timerRef.current = setInterval(tick, 7000)
+      },
+      (err) => {
+        setMsg(
+          err.code === 1
+            ? 'Location is blocked. Allow location access (tap the 🔒 / ⓘ icon near the address bar → Location → Allow), then try again. You must share your location to receive rides.'
+            : 'Could not get your location. Please check GPS is on and try again.'
+        )
+        setOnline(false)
+        try { localStorage.removeItem('dg_driver_online') } catch (_) {}
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    )
   }
 
   async function goOffline() {

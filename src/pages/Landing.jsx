@@ -189,7 +189,7 @@ export default function Landing() {
       <PublicHeader />
 
       <div className="bg-[#14532d] px-4 py-3 text-center text-sm font-extrabold uppercase tracking-wide text-white sm:text-base">
-        Book Toto, Bike, or Car -- From Home!
+        Book Toto, Bike, or Car — From Home!
       </div>
 
       <section id="top" className="relative overflow-hidden bg-gradient-to-b from-[#ecfdf5] to-white px-4 pb-10 pt-12 sm:px-6 sm:pt-16">
@@ -202,7 +202,7 @@ export default function Landing() {
                 Book Toto, Bike or Car — From Home!
               </h1>
               <p className="mx-auto mt-5 max-w-md text-base text-slate-600">
-                Toto, bike, or car -- booked with one call or a WhatsApp message, straight from your home across rural Dooars.
+                Toto, bike, or car — Book a Toto, Bike, or Car from home — by app, call, or WhatsApp — across your local Dooars area.
               </p>
               <p className="mx-auto mt-2 max-w-md text-base font-semibold text-[#15803d]" lang="bn">টোটো, বাইক বা গাড়ি — ঘরে বসেই বুক করুন।</p>
               <div className="mt-7 flex flex-col items-center gap-3">

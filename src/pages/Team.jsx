@@ -1,22 +1,27 @@
+import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import PublicHeader from '../components/PublicHeader'
 import logoFull from '../assets/dooarsgo-logo-full.png'
 import logoMark from '../assets/dooarsgo-logo-mark.png'
 
-// Demo team — logo used as the photo for now; swap names/roles/photos later.
+// Put each person's photo in the /public folder (400x400 square, <100 KB) and
+// set `photo` to its path, e.g. '/biswadip.jpg'. Missing photo falls back to the logo.
 const TEAM = [
-  { name: 'DooarsGo', role: 'Founder & Developer', bio: 'Building entire reliable local transit for the Dooars.' },
-  { name: 'Rahul Bhattacharjee', role: 'Operations Lead', bio: 'Keeps rides, drivers and support running smoothly.' },
-  { name: 'Sanjay Bhowmick', role: 'Driver Relations', bio: 'Onboards and supports our driver partners.' },
-  { name: 'Rahul Roy', role: 'Customer Support', bio: 'Here to help riders before, during and after a trip.' },
-  { name: 'Biswadip bhattacharjee', role: 'Technology', bio: 'Maintains the app, maps and entire booking platform.' },
-  { name: 'Debarati Bhattacharjee', role: 'Community & Growth', bio: 'Grows DooarsGo across villages and tea-garden areas.' },
-  { name: 'Team Member', role: 'Team Member', bio: 'Here to help riders before, during and after a trip.' },
-  { name: 'Team Member', role: 'Team Member', bio: 'Maintains the app, maps and entire booking platform.' },
-  { name: 'Team Member', role: 'Team Member', bio: 'Grows DooarsGo across villages and tea-garden areas.' },
+  { name: 'DooarsGo', role: 'Founder & Developer', bio: 'Engineering reliable, scalable transit infrastructure to power seamless local mobility across the Dooars.', photo: '/team/dooarsgo-logo-full.png' },
+  { name: 'Rahul Bhattacharjee', role: 'Operations Lead', bio: 'Ensures rides, drivers, and daily support run smoothly end to end.', photo: '/team/Rahul.png' },
+  { name: 'Goutam Das', role: 'Principal Advisor', bio: 'Guides external affairs, partnerships, and the regulatory roadmap.', photo: '/team/Gautam.png' },
+  { name: 'Shnehasish Roy', role: 'Customer Support', bio: 'Assists riders before, during, and after every trip.', photo: '/team/Shnehasish.png' },
+  { name: 'Biswadip Bhattacharjee', role: 'Head of Technology', bio: 'Architects end-to-end ride-hailing infrastructure, and scalable distributed systems across Dooars.', photo: '/team/dooarsgo.png' },
+  { name: 'Debarati Bhattacharya', role: 'Head of Social & Community', bio: 'Leads user growth, community engagement, and social advocacy.', photo: '/team/Debarati.png' },
+  { name: 'Sanjay Bhowmick', role: 'Driver Relations', bio: 'Onboards, trains, and supports our driver-partners.', photo: '/team/Sanjay.png' },
+  { name: 'Manik Oraon', role: 'Global Evangelist', bio: 'Drives brand vision, strategic partnerships, and outreach.', photo: '/team/Manik.png' },
+  { name: 'Abhishek Deb', role: 'General Operations', bio: 'Oversees day-to-day execution and cross-team coordination.', photo: '/team/Abhishek.png' },
 ]
 
 export default function Team() {
+  // Open this page at the top (not scrolled to a section).
+  useEffect(() => { window.scrollTo(0, 0) }, [])
+
   return (
     <div className="min-h-screen bg-white text-slate-900 [font-family:'Inter',system-ui,sans-serif]">
       <style>{`
@@ -53,10 +58,16 @@ export default function Team() {
           {TEAM.map((m, i) => (
             <div key={i} className="rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl"
               style={{ animation: `dg-up .5s ease-out ${i * 0.07}s both` }}>
-              <div className="mx-auto h-24 w-24 rounded-full ring-4 ring-[#facc15]/40 overflow-hidden bg-[#ecfdf5] flex items-center justify-center">
-                <img src={logoMark} alt={m.name} className="h-full w-full object-contain p-2" />
+              <div className="mx-auto h-36 w-36 overflow-hidden rounded-full bg-[#ecfdf5] ring-4 ring-[#15803d]/15 shadow-md">
+                <img
+                  src={m.photo}
+                  alt={m.name}
+                  loading="lazy"
+                  onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = logoMark; e.currentTarget.className = 'h-full w-full object-contain p-3' }}
+                  className="h-full w-full object-cover"
+                />
               </div>
-              <h3 className="mt-4 text-base font-bold text-slate-900">{m.name}</h3>
+              <h3 className="mt-4 text-lg font-bold text-slate-900">{m.name}</h3>
               <p className="text-sm font-semibold text-[#15803d]">{m.role}</p>
               <p className="mt-2 text-sm text-slate-500">{m.bio}</p>
             </div>
@@ -89,8 +100,10 @@ export default function Team() {
       </section>
 
       <footer className="bg-[#064e3b] px-4 py-8 text-center text-slate-300 sm:px-6">
-        <img src={logoMark} alt="DooarsGo" className="mx-auto h-8 w-auto brightness-0 invert" />
-        <p className="mt-2 text-xs text-slate-400">&copy; {new Date().getFullYear()} DooarsGo and Biswadip Bhattacharjee. All rights reserved.</p>
+        <div className="mx-auto inline-block rounded-xl bg-white p-2 shadow-sm">
+          <img src={logoFull} alt="DooarsGo" className="h-8 w-auto" />
+        </div>
+        <p className="mt-3 text-xs text-slate-400">&copy; {new Date().getFullYear()} DooarsGo and Biswadip Bhattacharjee. All rights reserved.</p>
         <Link to="/" className="mt-2 inline-block text-sm font-semibold text-emerald-300 hover:text-white">← Back to home</Link>
       </footer>
     </div>
