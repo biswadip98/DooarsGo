@@ -179,7 +179,7 @@ export default function DriverRegister() {
           <div className="flex gap-2">
             {fileField('Your photo', selfie, setSelfie)}
             {fileField('Aadhaar', aadhaar, setAadhaar)}
-            {fileField('Vehicle', vehiclePhoto, setVehiclePhoto)}
+            {fileField('Vehicle front (show clear number plate)', vehiclePhoto, setVehiclePhoto)}
           </div>
 
           {(() => {

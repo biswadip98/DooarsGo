@@ -304,6 +304,7 @@ export default function Landing() {
               <p className="italic text-slate-700">"DooarsGo was born out of a commitment to connect our villages and tea garden areas with reliable, everyday transit. We're building technology that directly serves our local community."</p>
               <p className="mt-3 text-sm font-bold text-slate-900">Biswadip Bhattacharjee</p>
               <p className="text-xs text-slate-500">Founder &amp; Developer, DooarsGo</p>
+              <a href="mailto:biswadip@dooarsgo.online" className="mt-2 inline-block text-sm font-bold text-[#15803d] hover:underline">📧 biswadip@dooarsgo.online</a>
             </div>
           </div>
         </Reveal>
