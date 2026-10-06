@@ -243,7 +243,7 @@ export default function Landing() {
       <div className="bg-[#14532d] px-4 py-3 text-center text-sm font-semibold text-white sm:text-base">Service Area: {SERVICE_AREA}</div>
 
       <div className="bg-gradient-to-r from-[#facc15] to-[#eab308] px-4 py-4 text-center">
-        <span className="dg-pulse inline-block text-2xl font-extrabold text-[#14532d] sm:text-3xl">Earn Daily with Your Bike or Toto — Join as a DooarsGo Driver Today!👮🏻</span>
+        <span className="dg-pulse inline-block text-2xl font-extrabold text-[#14532d] sm:text-3xl">Earn Daily — Drive with DooarsGo!👮🏻</span>
       </div>
 
       <section id="services" className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
