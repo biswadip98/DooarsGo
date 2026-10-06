@@ -243,7 +243,7 @@ export default function Landing() {
       <div className="bg-[#14532d] px-4 py-3 text-center text-sm font-semibold text-white sm:text-base">Service Area: {SERVICE_AREA}</div>
 
       <div className="bg-gradient-to-r from-[#facc15] to-[#eab308] px-4 py-4 text-center">
-        <span className="dg-pulse inline-block text-2xl font-extrabold text-[#14532d] sm:text-3xl">50% Off First Ride</span>
+        <span className="dg-pulse inline-block text-2xl font-extrabold text-[#14532d] sm:text-3xl">Earn Daily with Your Bike or Toto — Join as a DooarsGo Driver Today!👮🏻</span>
       </div>
 
       <section id="services" className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
@@ -304,7 +304,7 @@ export default function Landing() {
               <p className="italic text-slate-700">"DooarsGo was born out of a commitment to connect our villages and tea garden areas with reliable, everyday transit. We're building technology that directly serves our local community."</p>
               <p className="mt-3 text-sm font-bold text-slate-900">Biswadip Bhattacharjee</p>
               <p className="text-xs text-slate-500">Founder &amp; Developer, DooarsGo</p>
-              <a href="mailto:biswadip@dooarsgo.online" className="mt-2 inline-block text-sm font-bold text-[#15803d] hover:underline">📧 biswadip@dooarsgo.online</a>
+              <a href="mailto:biswadip@dooarsgo.online" className="mt-2 inline-block text-sm font-bold text-[#15803d] hover:underline">biswadip@dooarsgo.online</a>
             </div>
           </div>
         </Reveal>
