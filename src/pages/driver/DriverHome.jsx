@@ -9,7 +9,11 @@ export default function DriverHome() {
   const { user, profile, signOut } = useAuth()
   const navigate = useNavigate()
   const [verif, setVerif] = useState(null)
-  const [online, setOnline] = useState(false)
+  // Start from the saved flag so a back-press shows "Online" immediately
+  // instead of flashing "Offline" and replaying the go-online animation.
+  const [online, setOnline] = useState(() => {
+    try { return localStorage.getItem('dg_driver_online') === '1' } catch (_) { return false }
+  })
   const [rides, setRides] = useState([])
   const [msg, setMsg] = useState('')
   const [earn, setEarn] = useState(null)
@@ -28,13 +32,21 @@ export default function DriverHome() {
   useEffect(() => { checkActiveRide() // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // Stay online across rides: if the driver was online, resume automatically.
+  // Single place that runs the location loop based on `online`.
+  // On a back-press this quietly resumes location updates WITHOUT flipping
+  // the driver offline or replaying the "getting location" animation.
   useEffect(() => {
-    if (status === 'approved' && verif?.vehicle_type && !online) {
-      try { if (localStorage.getItem('dg_driver_online') === '1') goOnline() } catch (_) {}
+    if (status !== 'approved' || !verif?.vehicle_type) return
+    if (online && !timerRef.current) {
+      tick()
+      timerRef.current = setInterval(tick, 7000)
+    }
+    if (!online && timerRef.current) {
+      clearInterval(timerRef.current)
+      timerRef.current = null
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [status, verif])
+  }, [online, status, verif])
 
   useEffect(() => {
     async function load() {
@@ -82,7 +94,7 @@ export default function DriverHome() {
   }
 
   function tick() {
-    if (!navigator.geolocation) return
+    if (!navigator.geolocation || !verif?.vehicle_type) return
     navigator.geolocation.getCurrentPosition(async (pos) => {
       posRef.current = { lat: pos.coords.latitude, lng: pos.coords.longitude }
       await supabase.rpc('upsert_driver_location', {
@@ -103,10 +115,8 @@ export default function DriverHome() {
       async (pos) => {
         posRef.current = { lat: pos.coords.latitude, lng: pos.coords.longitude }
         setMsg('')
-        setOnline(true)
+        setOnline(true)                                   // the loop effect starts location updates
         try { localStorage.setItem('dg_driver_online', '1') } catch (_) {}
-        tick()
-        timerRef.current = setInterval(tick, 7000)
       },
       (err) => {
         setMsg(

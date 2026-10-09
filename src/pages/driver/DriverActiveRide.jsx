@@ -94,7 +94,7 @@ export default function DriverActiveRide() {
       const { data, error } = await supabase.rpc('finish_ride', { p_ride_id: id, p_driver_lng: pos.coords.longitude, p_driver_lat: pos.coords.latitude, p_payment_method: method.toUpperCase() })
       setBusy(false)
       if (error) { setErr(error.message); return }
-      if (!data?.ok) setErr(data?.error === 'too_far' ? 'You must be within 200 m of the drop to finish.' : 'Could not finish the ride.')
+      if (!data?.ok) setErr(data?.error === 'too_far' ? 'You must be within 400 m of the drop to finish.' : 'Could not finish the ride.')
     }, () => { setBusy(false); setErr('Could not read your location.') })
   }
 
