@@ -113,7 +113,9 @@ export default function Signup() {
       return
     }
     if (data?.session) navigate(afterSignup)
-    else setInfo(isDriver ? 'Account created. Please confirm your email, then log in to finish driver registration.' : 'Account created. Please confirm your email, then log in.')
+    else setInfo(isDriver
+  ? 'Almost done! We sent a confirmation link to your email. Open it to activate your account, then log in to finish driver registration. (If you typed the wrong email, nothing happens — just sign up again with the correct one.)'
+  : 'Almost done! We sent a confirmation link to your email. Open it to activate your account, then log in. (If you typed the wrong email, nothing happens — just sign up again with the correct one.)')
   }
 
   async function handleLogout() { try { if (signOut) await signOut() } finally {} }
