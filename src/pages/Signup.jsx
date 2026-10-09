@@ -14,6 +14,27 @@ function BackButton({ to = '/' }) {
   )
 }
 
+// --- Validation helpers (India, production-grade) ---------------------------
+// Keep only digits, drop a leading 91 (country code) or 0 (trunk), keep last 10.
+function normalizePhone(raw) {
+  let d = String(raw || '').replace(/\D/g, '')     // digits only
+  if (d.length > 10 && d.startsWith('91')) d = d.slice(2)   // strip +91 / 91
+  if (d.length === 11 && d.startsWith('0')) d = d.slice(1)  // strip leading 0
+  if (d.length > 10) d = d.slice(-10)              // keep last 10 as a fallback
+  return d
+}
+// Valid Indian mobile: exactly 10 digits, starts 6-9.
+const isValidIndianMobile = (d) => /^[6-9][0-9]{9}$/.test(d)
+// Reject obvious junk: all-same-digit, or a simple 1234567890 sequence.
+const isJunkPhone = (d) => /^(\d)\1{9}$/.test(d) || d === '1234567890' || d === '0123456789'
+// Basic but real email format check.
+const isValidEmail = (e) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(e || '').trim())
+// Name: at least 2 letters, allow spaces/dots/hyphens.
+const isValidName = (n) => {
+  const t = String(n || '').trim()
+  return t.length >= 2 && /[A-Za-z\u0980-\u09FF]{2,}/.test(t)  // Latin or Bengali letters
+}
+
 export default function Signup() {
   const { role } = useParams()
   const isDriver = role === 'driver'
@@ -36,27 +57,68 @@ export default function Signup() {
   const [info, setInfo] = useState('')
   const [busy, setBusy] = useState(false)
   const [agreedTerms, setAgreedTerms] = useState(false)
+  const [showPass, setShowPass] = useState(false)
   const set = (k) => (e) => setForm({ ...form, [k]: e.target.value })
+
+  // Phone field: allow only digits as the user types, cap at 10.
+  const onPhoneChange = (e) => {
+    const digits = e.target.value.replace(/\D/g, '').slice(0, 10)
+    setForm((f) => ({ ...f, phone: digits }))
+  }
 
   const afterSignup = isDriver ? '/driver/register' : '/home'
   const emoji = isDriver ? '🧑‍✈️' : '🛺'
 
   async function handleSignup() {
     setError(''); setInfo('')
-    if (!form.fullName || !form.phone || !form.email || !form.password) { setError('Please fill in every required field.'); return }
-    if (form.password.length < 8) { setError('Password must be at least 8 characters.'); return }
-    if (!agreedTerms) { setError("Please accept the Terms & Privacy Policy to continue."); return }
+
+    const name = form.fullName.trim()
+    const email = form.email.trim()
+    const phone = normalizePhone(form.phone)
+
+    // --- Validation gate (every rider & driver) ---
+    if (!name || !form.phone || !email || !form.password) {
+      setError('Please fill in every required field.'); return
+    }
+    if (!isValidName(name)) {
+      setError('Please enter your real full name.'); return
+    }
+    if (!isValidEmail(email)) {
+      setError('Please enter a valid email address (example: name@gmail.com).'); return
+    }
+    if (!isValidIndianMobile(phone) || isJunkPhone(phone)) {
+      setError('Enter a valid 10-digit Indian mobile number (starting 6, 7, 8 or 9). We need a real number so your driver/rider can reach you.'); return
+    }
+    if (form.password.length < 8) {
+      setError('Password must be at least 8 characters.'); return
+    }
+    if (!agreedTerms) {
+      setError('Please accept the Terms & Privacy Policy to continue.'); return
+    }
+
     setBusy(true)
     const { data, error } = await signUp({
-      email: form.email.trim(), password: form.password, fullName: form.fullName.trim(), phone: form.phone.trim(), gender: form.gender || null,
+      email, password: form.password, fullName: name, phone, gender: form.gender || null,
     })
     setBusy(false)
-    if (error) { setError(error.message || 'Could not create your account.'); return }
+    if (error) {
+      const m = (error.message || '').toLowerCase()
+      if (m.includes('phone') && (m.includes('unique') || m.includes('duplicate'))) {
+        setError('This mobile number is already registered. Please log in, or use a different number.')
+      } else if (m.includes('already') || m.includes('registered')) {
+        setError('An account with this email already exists. Please log in instead.')
+      } else {
+        setError(error.message || 'Could not create your account.')
+      }
+      return
+    }
     if (data?.session) navigate(afterSignup)
     else setInfo(isDriver ? 'Account created. Please confirm your email, then log in to finish driver registration.' : 'Account created. Please confirm your email, then log in.')
   }
 
   async function handleLogout() { try { if (signOut) await signOut() } finally {} }
+
+  const inputCls = 'w-full rounded-xl border border-mist bg-mist/40 px-3 py-3 text-sm outline-none focus:border-leafbright'
 
   return (
     <PageBackground>
@@ -95,16 +157,19 @@ export default function Signup() {
                 {info && <div className="mb-4 text-xs font-medium text-forest bg-leafbright/15 border border-leafbright/30 rounded-lg px-3 py-2">{info}</div>}
 
                 <label className="block text-xs font-semibold text-ink/60 mb-1">Full name</label>
-                <input value={form.fullName} onChange={set('fullName')} type="text" placeholder="Rina Sarkar"
-                  className="w-full mb-3 rounded-xl border border-mist bg-mist/40 px-3 py-3 text-sm outline-none focus:border-leafbright" />
+                <input value={form.fullName} onChange={set('fullName')} type="text" maxLength={60} placeholder="Rina Sarkar"
+                  className={`${inputCls} mb-3`} />
 
-                <label className="block text-xs font-semibold text-ink/60 mb-1">Phone</label>
-                <input value={form.phone} onChange={set('phone')} type="tel" placeholder="98xxxxxxxx"
-                  className="w-full mb-3 rounded-xl border border-mist bg-mist/40 px-3 py-3 text-sm outline-none focus:border-leafbright" />
+                <label className="block text-xs font-semibold text-ink/60 mb-1">Mobile number</label>
+                <div className="mb-1 flex items-stretch gap-2">
+                  <span className="flex items-center rounded-xl border border-mist bg-mist/60 px-3 text-sm font-semibold text-ink/70">+91</span>
+                  <input value={form.phone} onChange={onPhoneChange} type="tel" inputMode="numeric" maxLength={10}
+                    autoComplete="tel-national" placeholder="9876543210" className={`${inputCls} flex-1`} />
+                </div>
+                <p className="mb-3 text-[11px] text-ink/40">10-digit number your driver/rider will call. No +91, no spaces.</p>
 
                 <label className="block text-xs font-semibold text-ink/60 mb-1">Gender <span className="font-normal text-ink/40">(optional)</span></label>
-                <select value={form.gender} onChange={set('gender')}
-                  className="w-full mb-3 rounded-xl border border-mist bg-mist/40 px-3 py-3 text-sm outline-none focus:border-leafbright">
+                <select value={form.gender} onChange={set('gender')} className={`${inputCls} mb-3`}>
                   <option value="">Prefer not to say</option>
                   <option value="Male">Male</option>
                   <option value="Female">Female</option>
@@ -112,12 +177,18 @@ export default function Signup() {
                 </select>
 
                 <label className="block text-xs font-semibold text-ink/60 mb-1">Email</label>
-                <input value={form.email} onChange={set('email')} type="email" placeholder="you@example.com"
-                  className="w-full mb-3 rounded-xl border border-mist bg-mist/40 px-3 py-3 text-sm outline-none focus:border-leafbright" />
+                <input value={form.email} onChange={set('email')} type="email" inputMode="email" autoComplete="email" placeholder="you@example.com"
+                  className={`${inputCls} mb-3`} />
 
                 <label className="block text-xs font-semibold text-ink/60 mb-1">Password</label>
-                <input value={form.password} onChange={set('password')} onKeyDown={(e) => e.key === 'Enter' && handleSignup()} type="password" placeholder="At least 8 characters"
-                  className="w-full mb-5 rounded-xl border border-mist bg-mist/40 px-3 py-3 text-sm outline-none focus:border-leafbright" />
+                <div className="relative mb-5">
+                  <input value={form.password} onChange={set('password')} onKeyDown={(e) => e.key === 'Enter' && handleSignup()}
+                    type={showPass ? 'text' : 'password'} placeholder="At least 8 characters" className={`${inputCls} pr-16`} />
+                  <button type="button" onClick={() => setShowPass((s) => !s)}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg px-2 py-1 text-xs font-semibold text-forest hover:bg-mist/60">
+                    {showPass ? 'Hide' : 'Show'}
+                  </button>
+                </div>
 
                 <label className="mb-4 flex items-start gap-2 text-xs text-ink/60 cursor-pointer">
                   <input type="checkbox" checked={agreedTerms} onChange={(e) => setAgreedTerms(e.target.checked)} className="mt-0.5 h-4 w-4 accent-[#15803d]" />

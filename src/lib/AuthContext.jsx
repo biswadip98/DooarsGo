@@ -49,14 +49,22 @@ export function AuthProvider({ children }) {
         password,
         options: { data: { full_name: fullName, phone, gender: gender || null } },
       })
-      // Make sure name, phone & gender land on the profile row even if the
-      // database trigger doesn't copy them from sign-up metadata.
+      // If sign-up itself failed (e.g. duplicate phone rejected by the DB
+      // trigger, or duplicate email), surface that straight away.
+      if (res.error) return res
+
+      // When email-confirmation is OFF we get a session immediately, so we
+      // also write name/phone/gender onto the profile row as a safety net.
+      // IMPORTANT: capture the update error — a duplicate phone (unique index)
+      // must bubble up so the signup form can show a friendly message instead
+      // of silently letting the user in with the wrong/empty number.
       const uid = res.data?.user?.id
       if (uid && res.data?.session) {
-        await supabase
+        const { error: upErr } = await supabase
           .from('profiles')
           .update({ full_name: fullName, phone, gender: gender || null })
           .eq('id', uid)
+        if (upErr) return { data: res.data, error: upErr }
         await loadProfile(uid)
       }
       return res
